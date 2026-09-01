@@ -31,8 +31,17 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
 ]
 
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
 # Application definition
 INSTALLED_APPS = [
+    # Django Unfold (Must be placed before django.contrib.admin)
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
+    'unfold.contrib.inlines',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -160,4 +169,116 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+}
+
+# Django Unfold Configuration
+UNFOLD = {
+    'SITE_TITLE': 'IBVAP Command Admin',
+    'SITE_HEADER': 'IBVAP | Intelligent Border Video Analytics',
+    'SITE_SUBHEADER': 'HQ Surveillance & Threat Intelligence Operations',
+    'SITE_SYMBOL': 'shield',
+    'SITE_URL': '/',
+    'ENVIRONMENT': 'IBVAP.HQ // LIVE BORDER SEC-OPS',
+    'SHOW_HISTORY': True,
+    'SHOW_VIEW_ON_SITE': True,
+    'DASHBOARD_CALLBACK': 'apps.core.admin_dashboard.dashboard_callback',
+    'SIDEBAR': {
+        'show_search': True,
+        'show_all_applications': True,
+        'navigation': [
+            {
+                'title': _('Border Surveillance'),
+                'separator': True,
+                'collapsible': True,
+                'items': [
+                    {
+                        'title': _('Camera Feeds'),
+                        'icon': 'videocam',
+                        'link': reverse_lazy('admin:cameras_camera_changelist'),
+                    },
+                    {
+                        'title': _('Security Alerts'),
+                        'icon': 'warning',
+                        'link': reverse_lazy('admin:alerts_securityalert_changelist'),
+                    },
+                    {
+                        'title': _('Security Events'),
+                        'icon': 'event_note',
+                        'link': reverse_lazy('admin:events_securityevent_changelist'),
+                    },
+                ],
+            },
+            {
+                'title': _('Vehicle Intel & ANPR'),
+                'separator': True,
+                'collapsible': True,
+                'items': [
+                    {
+                        'title': _('ANPR Detections'),
+                        'icon': 'directions_car',
+                        'link': reverse_lazy('admin:anpr_anprdetection_changelist'),
+                    },
+                    {
+                        'title': _('Watchlist Vehicles'),
+                        'icon': 'radar',
+                        'link': reverse_lazy('admin:watchlist_watchlistvehicle_changelist'),
+                    },
+                ],
+            },
+            {
+                'title': _('System & Access Management'),
+                'separator': True,
+                'collapsible': True,
+                'items': [
+                    {
+                        'title': _('System Configuration'),
+                        'icon': 'tune',
+                        'link': reverse_lazy('admin:settings_app_systemconfiguration_changelist'),
+                    },
+                    {
+                        'title': _('Officer Profiles'),
+                        'icon': 'badge',
+                        'link': reverse_lazy('admin:accounts_userprofile_changelist'),
+                    },
+                    {
+                        'title': _('User Accounts'),
+                        'icon': 'person',
+                        'link': reverse_lazy('admin:auth_user_changelist'),
+                    },
+                    {
+                        'title': _('User Groups'),
+                        'icon': 'group',
+                        'link': reverse_lazy('admin:auth_group_changelist'),
+                    },
+                ],
+            },
+            {
+                'title': _('Live Operations Portals'),
+                'separator': True,
+                'collapsible': False,
+                'items': [
+                    {
+                        'title': _('HQ Live Dashboard'),
+                        'icon': 'dashboard',
+                        'link': reverse_lazy('dashboard:index'),
+                    },
+                    {
+                        'title': _('Camera Grid'),
+                        'icon': 'grid_view',
+                        'link': reverse_lazy('cameras:list'),
+                    },
+                    {
+                        'title': _('Tactical Sector Map'),
+                        'icon': 'map',
+                        'link': reverse_lazy('map:index'),
+                    },
+                    {
+                        'title': _('Threat Analytics'),
+                        'icon': 'analytics',
+                        'link': reverse_lazy('analytics:index'),
+                    },
+                ],
+            },
+        ],
+    },
 }
