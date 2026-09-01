@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Command Center Dashboard — IBVAP{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-shield-check text-cyan"></i>
+                Security Command Center
+            </h1>
+            <p class="page-subtitle">Real-time border surveillance and AI threat monitoring.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger p-2 font-monospace">THREAT LEVEL: CRITICAL (92/100)</span>
+            <a href="{% url 'cameras:list' %}" class="btn-soc-secondary">
+                <i class="bi bi-gear"></i> Camera Feeds
+            </a>
+        </div>
+    </div>
+
+    <!-- 6 KPI Metric Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap cyan">
+                <i class="bi bi-camera-video-fill"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ kpis.active_cameras }}</div>
+                <div class="kpi-label">Active Cameras</div>
+                <div class="kpi-trend text-success"><i class="bi bi-circle-fill text-success" style="font-size: 6px;"></i> 100% Online</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap red">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ kpis.active_alerts }}</div>
+                <div class="kpi-label">Active Alerts</div>
+                <div class="kpi-trend text-danger"><i class="bi bi-arrow-up-right"></i> High Priority</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap yellow">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ kpis.people_detected }}</div>
+                <div class="kpi-label">People Detected</div>
+                <div class="kpi-trend text-muted font-monospace">+4 last hour</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap cyan">
+                <i class="bi bi-car-front-fill"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ kpis.vehicles_detected }}</div>
+                <div class="kpi-label">Vehicles Tracked</div>
+                <div class="kpi-trend text-cyan font-monospace">1 Watchlist Hit</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap orange">
+                <i class="bi bi-shield-slash-fill"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ kpis.critical_events }}</div>
+                <div class="kpi-label">Critical Events</div>
+                <div class="kpi-trend text-orange font-monospace">Fence Breaches</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap green">
+                <i class="bi bi-cpu-fill"></i>
+            </div>
+            <div>
+                <div class="kpi-value" style="font-size: 1.1rem; padding-top: 6px;">{{ kpis.system_status }}</div>
+                <div class="kpi-label">AI Engine</div>
+                <div class="kpi-trend text-success font-monospace">Latency: 14ms</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid: 2x2 Cameras + Threat & Alerts Sidebar -->
+    <div class="row g-4 mb-4">
+        <!-- 2x2 Camera Video Grid -->
+        <div class="col-xl-8">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-grid-fill text-cyan"></i>
+                        Live Tactical Surveillance Feeds (2x2 Grid)
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-dark border border-secondary text-muted font-monospace small">SYNC INTERVAL: {{ config.auto_refresh_rate }}s</span>
+                    </div>
+                </div>
+
+                <div class="camera-grid-2x2">
+                    {% for cam in cameras %}
+                        <div class="camera-feed-card" id="card-{{ cam.camera_id }}">
+                            <div class="camera-feed-header">
+                                <div class="camera-id-tag">
+                                    <i class="bi bi-camera-video text-cyan"></i>
+                                    {{ cam.camera_id }}
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if cam.feed_type == 'LIVE' %}
+                                        <span class="feed-status-badge badge-live">
+                                            <span class="live-dot me-1"></span> LIVE — WEBCAM
+                                        </span>
+                                    {% else %}
+                                        <span class="feed-status-badge badge-simulation">
+                                            ● SIMULATION — VIDEO
+                                        </span>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-link text-white p-0" onclick="toggleFullscreen('card-{{ cam.camera_id }}')" title="Fullscreen">
+                                        <i class="bi bi-arrows-fullscreen"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="camera-viewport">
+                                <!-- Reticles -->
+                                <div class="hud-reticle-tl"></div>
+                                <div class="hud-reticle-tr"></div>
+                                <div class="hud-reticle-bl"></div>
+                                <div class="hud-reticle-br"></div>
+
+                                {% if cam.feed_type == 'LIVE' %}
+                                    <!-- Webcam element for BOP-01 -->
+                                    <video id="video-{{ cam.camera_id }}" autoplay playsinline muted style="display: none;"></video>
+                                    <canvas id="canvas-{{ cam.camera_id }}" style="display: block;"></canvas>
+                                {% else %}
+                                    <!-- Tactical Canvas for simulated cameras -->
+                                    <canvas id="canvas-{{ cam.camera_id }}"></canvas>
+                                {% endif %}
+
+                                <!-- HUD Overlay -->
+                                <div class="hud-overlay">
+                                    <div class="hud-top">
+                                        <span>{{ cam.location }}</span>
+                                        <span>FPS: 30.0 &bull; 1080p</span>
+                                    </div>
+                                    <div class="hud-bottom">
+                                        <div class="hud-counts">
+                                            <div class="count-chip">
+                                                <i class="bi bi-person text-cyan"></i>
+                                                <span>{{ cam.people_count }}</span>
+                                            </div>
+                                            <div class="count-chip">
+                                                <i class="bi bi-car-front text-warning"></i>
+                                                <span>{{ cam.vehicle_count }}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            {% if cam.is_ai_active %}
+                                                <span class="ai-active-tag">AI ACTIVE</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="camera-feed-footer">
+                                <span>{{ cam.name }}</span>
+                                {% if cam.feed_type == 'LIVE' %}
+                                    <button class="btn btn-sm btn-soc-primary py-0 px-2 font-monospace" style="font-size: 0.72rem;" id="btn-webcam-{{ cam.camera_id }}">
+                                        <i class="bi bi-camera-video"></i> Toggle Webcam
+                                    </button>
+                                {% else %}
+                                    <span class="font-monospace text-xs text-muted">SYNTHETIC FEED</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Threat Intelligence & Live Security Alerts Column -->
+        <div class="col-xl-4 d-flex flex-column gap-4">
+            <!-- Threat Intelligence Gauge Card -->
+            <div class="soc-card glow-red">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-shield-exclamation text-danger"></i>
+                        Threat Intelligence
+                    </div>
+                    <span class="badge bg-danger font-monospace">CRITICAL</span>
+                </div>
+
+                <div class="threat-gauge-container">
+                    <div class="threat-meter">
+                        <svg viewBox="0 0 160 160">
+                            <circle class="threat-meter-bg" cx="80" cy="80" r="70"></circle>
+                            <circle class="threat-meter-fill" cx="80" cy="80" r="70"></circle>
+                        </svg>
+                        <div class="threat-meter-center">
+                            <div class="threat-num">{{ threat_score }}</div>
+                            <span class="text-muted font-monospace small">/ 100</span>
+                            <div class="threat-badge-crit">CRITICAL RISK</div>
+                        </div>
+                    </div>
+
+                    <div class="threat-factor-list">
+                        <div class="text-muted small fw-bold font-monospace mb-1">PROTOTYPE THREAT CALCULATION:</div>
+                        {% for item in threat_breakdown %}
+                            <div class="threat-factor-item">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi {{ item.icon }} text-cyan"></i>
+                                    <span>{{ item.factor }}</span>
+                                </div>
+                                <span class="threat-factor-weight">{{ item.weight }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Security Alerts Stream Panel -->
+            <div class="soc-card flex-grow-1">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-broadcast text-danger"></i>
+                        Live Security Alerts
+                    </div>
+                    <a href="{% url 'alerts:list' %}" class="btn-soc-secondary py-1 px-2 text-xs">
+                        View All ({{ kpis.active_alerts }})
+                    </a>
+                </div>
+
+                <div class="alert-stream-list">
+                    {% for alert in active_alerts %}
+                        <div class="alert-item-card border-{{ alert.severity|lower }}" id="alert-card-{{ alert.pk }}">
+                            <div class="alert-header">
+                                <span class="badge {% if alert.severity == 'CRITICAL' %}bg-danger{% elif alert.severity == 'HIGH' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} font-monospace small">
+                                    {{ alert.severity }}
+                                </span>
+                                <span class="alert-meta">{{ alert.created_at|timesince }} ago</span>
+                            </div>
+                            <div class="alert-title">{{ alert.title }}</div>
+                            <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary small font-monospace">
+                                <span class="text-cyan"><i class="bi bi-camera-video me-1"></i>{{ alert.camera.camera_id }}</span>
+                                <span class="text-danger fw-bold">Threat: {{ alert.threat_score }}/100</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted small py-4">No active security alerts</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Security Events Table -->
+    <div class="soc-card">
+        <div class="card-header-soc">
+            <div class="card-title-soc">
+                <i class="bi bi-clock-history text-cyan"></i>
+                Recent Security Events Log
+            </div>
+            <a href="{% url 'events:list' %}" class="btn-soc-secondary py-1 px-2 text-xs">
+                Full Event Timeline &rarr;
+            </a>
+        </div>
+
+        <div class="soc-table-wrapper">
+            <table class="soc-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Camera</th>
+                        <th>Event Type</th>
+                        <th>Detected Object</th>
+                        <th>Threat Score</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in recent_events %}
+                        <tr>
+                            <td class="font-mono text-muted">{{ event.timestamp|date:"H:i:s" }} IST</td>
+                            <td><span class="badge bg-dark border border-secondary text-cyan font-monospace">{{ event.camera.camera_id }}</span></td>
+                            <td class="fw-bold text-white">{{ event.get_event_type_display }}</td>
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary font-monospace">
+                                    {{ event.object_type }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="font-monospace fw-bold {% if event.threat_score >= 80 %}text-danger{% elif event.threat_score >= 50 %}text-warning{% else %}text-success{% endif %}">
+                                    {{ event.threat_score }} / 100
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if event.severity == 'CRITICAL' %}bg-danger{% elif event.severity == 'HIGH' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} font-monospace">
+                                    {{ event.severity }}
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn-soc-primary py-1 px-2 text-xs" onclick="showEvidenceModal('{{ event.pk }}')">
+                                    <i class="bi bi-eye"></i> View Event
+                                </button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-3">No events logged</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

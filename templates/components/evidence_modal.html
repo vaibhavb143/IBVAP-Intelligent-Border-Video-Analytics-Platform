@@ -1,0 +1,87 @@
+<!-- Global Security Event Evidence Capture Modal -->
+<div class="modal fade" id="evidenceModal" tabindex="-1" aria-labelledby="evidenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content soc-card border-cyan shadow-lg" style="background: #090e18;">
+            <div class="modal-header border-secondary pb-3">
+                <h5 class="modal-title text-white d-flex align-items-center gap-2" id="evidenceModalLabel">
+                    <i class="bi bi-shield-shaded text-cyan"></i>
+                    <span>EVIDENCE CAPTURE DOSSIER</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="camera-viewport rounded border border-secondary position-relative" style="height: 260px; background: #030712;">
+                            <!-- Simulated snapshot view -->
+                            <div class="hud-overlay">
+                                <div class="hud-top">
+                                    <span id="evidenceCamId">BOP-03</span>
+                                    <span id="evidenceTime">02:17:32 IST</span>
+                                </div>
+                                <div class="hud-bottom">
+                                    <span class="badge bg-danger font-monospace">BREACH FRAME #4092</span>
+                                    <span class="ai-active-tag" id="evidenceConf">CONFIDENCE: 96%</span>
+                                </div>
+                            </div>
+                            <!-- Canvas Mock -->
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-3">
+                                <i class="bi bi-camera-reels fs-1 text-cyan opacity-50 mb-2"></i>
+                                <span class="font-monospace text-muted small">CCTV OPTICAL FRAME CAPTURED</span>
+                                <div class="border border-danger border-2 p-2 mt-2 bg-danger bg-opacity-10 rounded font-monospace small text-danger" id="evidenceBox">
+                                    [OBJECT: INTRUSION BREACH DETECTED]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="badge bg-danger px-3 py-2 font-monospace" id="evidenceSeverity">CRITICAL</span>
+                                <span class="font-monospace text-muted small" id="evidenceId">EVT-021732</span>
+                            </div>
+                            <h6 class="fw-bold text-white mb-3" id="evidenceType">Restricted Zone Intrusion</h6>
+                            <div class="d-flex flex-column gap-2 small text-muted font-monospace">
+                                <div><strong class="text-white">Location:</strong> <span id="evidenceLoc">Sector 03 Outpost</span></div>
+                                <div><strong class="text-white">Coordinates:</strong> <span id="evidenceCoords" class="text-cyan">32.7380 N, 74.8480 E</span></div>
+                                <div><strong class="text-white">Threat Score:</strong> <span class="text-danger fw-bold" id="evidenceThreat">92 / 100</span></div>
+                                <div><strong class="text-white">Details:</strong> <span class="text-light" id="evidenceDetails">Virtual Fence perimeter breached by unauthorized pedestrian.</span></div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-top border-secondary d-flex gap-2">
+                            <button type="button" class="btn btn-soc-secondary flex-grow-1" onclick="window.print()">
+                                <i class="bi bi-printer"></i> Export Dossier
+                            </button>
+                            <button type="button" class="btn btn-soc-primary flex-grow-1" data-bs-dismiss="modal">
+                                Acknowledge & Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showEvidenceModal(pk) {
+    fetch(`/events/${pk}/evidence/`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('evidenceId').textContent = data.event_id;
+            document.getElementById('evidenceCamId').textContent = data.camera;
+            document.getElementById('evidenceTime').textContent = data.timestamp;
+            document.getElementById('evidenceType').textContent = data.event_type;
+            document.getElementById('evidenceLoc').textContent = data.location;
+            document.getElementById('evidenceCoords').textContent = data.coordinates;
+            document.getElementById('evidenceThreat').textContent = data.threat_score + ' / 100';
+            document.getElementById('evidenceDetails').textContent = data.details;
+            document.getElementById('evidenceConf').textContent = 'CONFIDENCE: ' + data.confidence;
+            document.getElementById('evidenceSeverity').textContent = data.severity;
+            
+            const modal = new bootstrap.Modal(document.getElementById('evidenceModal'));
+            modal.show();
+        })
+        .catch(err => console.error(err));
+}
+</script>

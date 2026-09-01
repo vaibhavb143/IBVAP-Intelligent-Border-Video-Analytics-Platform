@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Historical Events — IBVAP{% endblock %}
+
+{% block content %}
+<div class="events-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-journal-text text-cyan"></i>
+                Historical Security Events Log
+            </h1>
+            <p class="page-subtitle">Searchable surveillance timeline, optical evidence frames, and forensic detection history.</p>
+        </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="soc-card mb-4">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-dark border-secondary text-cyan"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control soc-input" placeholder="Search Event ID or Description..." value="{{ search }}">
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <select name="camera" class="form-select form-select-sm soc-input">
+                    <option value="ALL">All Cameras</option>
+                    {% for c in cameras %}
+                        <option value="{{ c.camera_id }}" {% if selected_camera == c.camera_id %}selected{% endif %}>{{ c.camera_id }} ({{ c.name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select name="type" class="form-select form-select-sm soc-input">
+                    <option value="ALL">All Event Classifications</option>
+                    <option value="INTRUSION" {% if selected_type == 'INTRUSION' %}selected{% endif %}>Restricted Zone Intrusion</option>
+                    <option value="NIGHT_MOVEMENT" {% if selected_type == 'NIGHT_MOVEMENT' %}selected{% endif %}>Night Movement</option>
+                    <option value="ANPR_MATCH" {% if selected_type == 'ANPR_MATCH' %}selected{% endif %}>ANPR Match</option>
+                    <option value="LOITERING" {% if selected_type == 'LOITERING' %}selected{% endif %}>Loitering</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn-soc-primary btn-sm flex-grow-1 justify-content-center">
+                    Filter
+                </button>
+                <a href="{% url 'events:list' %}" class="btn-soc-secondary btn-sm">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Events Table -->
+    <div class="soc-card">
+        <div class="soc-table-wrapper">
+            <table class="soc-table">
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Timestamp (IST)</th>
+                        <th>Camera Node</th>
+                        <th>Incident Classification</th>
+                        <th>Object Type</th>
+                        <th>Risk Score</th>
+                        <th>Confidence</th>
+                        <th>Forensic Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td class="font-monospace fw-bold text-white">{{ event.event_id }}</td>
+                            <td class="font-monospace text-muted">{{ event.timestamp|date:"Y-m-d H:i:s" }}</td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary text-cyan font-monospace">
+                                    {{ event.camera.camera_id }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-white">{{ event.get_event_type_display }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary font-monospace">
+                                    {{ event.object_type }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="font-monospace fw-bold {% if event.threat_score >= 80 %}text-danger{% elif event.threat_score >= 50 %}text-warning{% else %}text-success{% endif %}">
+                                    {{ event.threat_score }} / 100
+                                </span>
+                            </td>
+                            <td>
+                                <span class="font-monospace text-cyan small">{{ event.confidence|floatformat:2 }}</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn-soc-primary py-1 px-2 text-xs" onclick="showEvidenceModal('{{ event.pk }}')">
+                                    <i class="bi bi-camera-reels"></i> View Evidence
+                                </button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No events found matching current search criteria.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+<aside class="soc-sidebar" id="socSidebar">
+    <div class="sidebar-top">
+        <ul class="nav-menu">
+            <li>
+                <a href="{% url 'dashboard:index' %}" class="nav-item-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'cameras:list' %}" class="nav-item-link {% if request.resolver_match.app_name == 'cameras' %}active{% endif %}">
+                    <i class="bi bi-camera-video"></i>
+                    <span>Cameras</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'alerts:list' %}" class="nav-item-link {% if request.resolver_match.app_name == 'alerts' %}active{% endif %}">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Alerts</span>
+                    {% if UNREAD_ALERTS_COUNT > 0 %}
+                        <span class="badge-alert-count">{{ UNREAD_ALERTS_COUNT }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'events:list' %}" class="nav-item-link {% if request.resolver_match.app_name == 'events' %}active{% endif %}">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Events</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'anpr:list' %}" class="nav-item-link {% if request.resolver_match.app_name == 'anpr' %}active{% endif %}">
+                    <i class="bi bi-car-front"></i>
+                    <span>ANPR</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'watchlist:list' %}" class="nav-item-link {% if request.resolver_match.app_name == 'watchlist' %}active{% endif %}">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Watchlist</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'map:index' %}" class="nav-item-link {% if request.resolver_match.app_name == 'map' %}active{% endif %}">
+                    <i class="bi bi-map"></i>
+                    <span>Border Map</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'analytics:index' %}" class="nav-item-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'settings_app:index' %}" class="nav-item-link {% if request.resolver_match.app_name == 'settings_app' %}active{% endif %}">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="officer-badge">
+            <div class="officer-avatar">
+                {{ request.user.username|make_list|first|upper|default:"O" }}
+            </div>
+            <div class="officer-meta">
+                <div class="officer-name">{{ request.user.get_full_name|default:request.user.username|default:"Security Officer" }}</div>
+                <div class="officer-role font-monospace">{{ request.user.profile.badge_number|default:"BSF-OP-042" }}</div>
+            </div>
+        </div>
+
+        <a href="{% url 'accounts:logout' %}" class="btn-soc-secondary w-100 justify-content-center text-danger border-0">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</aside>

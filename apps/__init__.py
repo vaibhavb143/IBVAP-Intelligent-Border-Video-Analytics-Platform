@@ -1,0 +1,3 @@
+"""
+IBVAP Django Applications Package
+"""

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vehicle Watchlist — IBVAP{% endblock %}
+
+{% block content %}
+<div class="watchlist-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-shield-check text-cyan"></i>
+                Vehicle Watchlist Intelligence Database
+            </h1>
+            <p class="page-subtitle">Flagged vehicle registry, threat priority assignment, and real-time ANPR match rules.</p>
+        </div>
+        <button type="button" class="btn-soc-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+            <i class="bi bi-plus-lg"></i> Add Target Vehicle
+        </button>
+    </div>
+
+    <!-- Demonstration Notice Banner -->
+    <div class="alert alert-dark border-secondary d-flex align-items-center gap-3 mb-4" role="alert">
+        <i class="bi bi-info-circle-fill text-cyan fs-4"></i>
+        <div class="small text-muted">
+            <strong class="text-white">SIH Demonstration Notice:</strong> Vehicle plates and descriptions shown below are sample demonstration records configured for hackathon evaluation and threat alert simulations.
+        </div>
+    </div>
+
+    <!-- Watchlist Table Card -->
+    <div class="soc-card">
+        <div class="card-header-soc">
+            <div class="card-title-soc">
+                <i class="bi bi-shield-lock text-cyan"></i>
+                Active Target Registry ({{ vehicles.count }})
+            </div>
+            <span class="badge bg-danger font-monospace">ACTIVE SURVEILLANCE</span>
+        </div>
+
+        <div class="soc-table-wrapper">
+            <table class="soc-table">
+                <thead>
+                    <tr>
+                        <th>Target Plate Number</th>
+                        <th>Vehicle Classification</th>
+                        <th>Intelligence & Threat Description</th>
+                        <th>Risk Priority</th>
+                        <th>Surveillance Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in vehicles %}
+                        <tr>
+                            <td>
+                                <span class="plate-tag">{{ vehicle.plate_number }}</span>
+                            </td>
+                            <td class="fw-bold text-white">{{ vehicle.vehicle_type }}</td>
+                            <td>
+                                <div class="text-light small text-wrap" style="max-width: 360px;">{{ vehicle.description }}</div>
+                                <span class="text-xs text-muted font-monospace">Reported Sector: {{ vehicle.reported_sector }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {% if vehicle.risk_level == 'CRITICAL' %}bg-danger{% elif vehicle.risk_level == 'HIGH' %}bg-warning text-dark{% elif vehicle.risk_level == 'MEDIUM' %}bg-info text-dark{% else %}bg-secondary{% endif %} font-monospace">
+                                    {{ vehicle.get_risk_level_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success bg-opacity-25 text-success border border-success font-monospace">
+                                    ● {{ vehicle.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'watchlist:delete' vehicle.pk %}" onsubmit="return confirm('Remove {{ vehicle.plate_number }} from Watchlist?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-soc-danger py-1 px-2 text-xs">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No vehicles currently registered in the watchlist database.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Vehicle Modal -->
+<div class="modal fade" id="addVehicleModal" tabindex="-1" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content soc-card border-cyan" style="background: #0b111e;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white d-flex align-items-center gap-2" id="addVehicleModalLabel">
+                    <i class="bi bi-plus-circle text-cyan"></i>
+                    Register Target Vehicle
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'watchlist:add' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold font-monospace">LICENSE PLATE NUMBER</label>
+                        <input type="text" name="plate_number" class="form-control soc-input font-monospace text-uppercase" placeholder="e.g. MH20AB1234" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold font-monospace">VEHICLE TYPE</label>
+                        <select name="vehicle_type" class="form-select soc-input">
+                            <option value="Car">Sedan / Hatchback</option>
+                            <option value="SUV">SUV / 4x4</option>
+                            <option value="Truck">Commercial Heavy Truck</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                            <option value="Van">Cargo / Delivery Van</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold font-monospace">RISK PRIORITY LEVEL</label>
+                        <select name="risk_level" class="form-select soc-input">
+                            <option value="CRITICAL">Critical Priority (Immediate Detain)</option>
+                            <option value="HIGH" selected>High Risk (Flag & Monitor)</option>
+                            <option value="MEDIUM">Medium Risk (Secondary Inspection)</option>
+                            <option value="LOW">Low Risk (Informational)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold font-monospace">REPORTED SECTOR / CHECKPOINT</label>
+                        <input type="text" name="reported_sector" class="form-control soc-input" placeholder="e.g. GATE-01 Main Checkpost">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold font-monospace">REASON FOR FLAGGING / DESCRIPTION</label>
+                        <textarea name="description" class="form-control soc-input" rows="3" placeholder="Enter intelligence notes or reason for watchlist inclusion (Demo Data)..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-soc-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-soc-primary">
+                        <i class="bi bi-check-lg"></i> Register to Watchlist
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

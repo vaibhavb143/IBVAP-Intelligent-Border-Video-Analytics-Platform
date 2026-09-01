@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Security Alerts — IBVAP{% endblock %}
+
+{% block content %}
+<div class="alerts-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-exclamation-triangle text-danger"></i>
+                Security Alert Triage
+            </h1>
+            <p class="page-subtitle">Real-time threat notification log, incident verification, and officer acknowledgment queue.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger p-2 font-monospace">{{ counts.active }} UNRESOLVED THREATS</span>
+        </div>
+    </div>
+
+    <!-- Severity Filter Tabs & Filter Bar -->
+    <div class="soc-card mb-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <ul class="nav nav-pills gap-2">
+                <li class="nav-item">
+                    <a class="nav-link {% if selected_severity == 'ALL' %}active bg-info text-dark fw-bold{% else %}text-muted{% endif %}" href="?severity=ALL&camera={{ selected_camera }}&status={{ selected_status }}">
+                        All Alerts ({{ counts.all }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if selected_severity == 'CRITICAL' %}active bg-danger text-white fw-bold{% else %}text-danger{% endif %}" href="?severity=CRITICAL&camera={{ selected_camera }}&status={{ selected_status }}">
+                        Critical ({{ counts.critical }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if selected_severity == 'HIGH' %}active bg-warning text-dark fw-bold{% else %}text-warning{% endif %}" href="?severity=HIGH&camera={{ selected_camera }}&status={{ selected_status }}">
+                        High ({{ counts.high }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if selected_severity == 'MEDIUM' %}active bg-info text-dark fw-bold{% else %}text-info{% endif %}" href="?severity=MEDIUM&camera={{ selected_camera }}&status={{ selected_status }}">
+                        Medium ({{ counts.medium }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if selected_severity == 'LOW' %}active bg-secondary text-white fw-bold{% else %}text-muted{% endif %}" href="?severity=LOW&camera={{ selected_camera }}&status={{ selected_status }}">
+                        Low ({{ counts.low }})
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Camera Filter Form -->
+            <form method="get" class="d-flex gap-2">
+                <input type="hidden" name="severity" value="{{ selected_severity }}">
+                <select name="camera" class="form-select form-select-sm soc-input" onchange="this.form.submit()">
+                    <option value="ALL">All Monitored Cameras</option>
+                    {% for c in cameras %}
+                        <option value="{{ c.camera_id }}" {% if selected_camera == c.camera_id %}selected{% endif %}>{{ c.camera_id }} ({{ c.name }})</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alerts Grid / Table -->
+    <div class="soc-card">
+        <div class="soc-table-wrapper">
+            <table class="soc-table">
+                <thead>
+                    <tr>
+                        <th>Alert ID & Time</th>
+                        <th>Camera Source</th>
+                        <th>Threat Classification</th>
+                        <th>Detected Entity</th>
+                        <th>Threat Score</th>
+                        <th>Status</th>
+                        <th>Tactical Response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                        <tr id="alert-row-{{ alert.pk }}">
+                            <td>
+                                <div class="font-monospace fw-bold text-white">{{ alert.alert_id }}</div>
+                                <span class="text-xs text-muted font-monospace">{{ alert.created_at|date:"Y-m-d H:i:s" }} IST</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary text-cyan font-monospace">
+                                    {{ alert.camera.camera_id }}
+                                </span>
+                                <div class="text-xs text-muted mt-1">{{ alert.camera.location }}</div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge {% if alert.severity == 'CRITICAL' %}bg-danger{% elif alert.severity == 'HIGH' %}bg-warning text-dark{% elif alert.severity == 'MEDIUM' %}bg-info text-dark{% else %}bg-secondary{% endif %} font-monospace">
+                                        {{ alert.severity }}
+                                    </span>
+                                    <strong class="text-white small">{{ alert.title }}</strong>
+                                </div>
+                                <div class="text-xs text-muted mt-1 text-wrap" style="max-width: 320px;">{{ alert.description }}</div>
+                            </td>
+                            <td>
+                                <span class="font-monospace small text-cyan">
+                                    {{ alert.detected_object }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2 font-monospace fw-bold {% if alert.threat_score >= 80 %}text-danger{% elif alert.threat_score >= 50 %}text-warning{% else %}text-success{% endif %}">
+                                    <span>{{ alert.threat_score }} / 100</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge alert-status-badge {% if alert.status == 'ACTIVE' %}bg-danger{% elif alert.status == 'ACKNOWLEDGED' %}bg-warning text-dark{% else %}bg-secondary{% endif %} font-monospace">
+                                    {{ alert.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    {% if alert.status == 'ACTIVE' %}
+                                        <button type="button" class="btn-soc-secondary py-1 px-2 text-xs" onclick="handleAlertAction('{% url 'alerts:acknowledge' alert.pk %}', 'alert-row-{{ alert.pk }}', 'acknowledge')">
+                                            <i class="bi bi-hand-thumbs-up"></i> Acknowledge
+                                        </button>
+                                    {% endif %}
+                                    {% if alert.status != 'RESOLVED' %}
+                                        <button type="button" class="btn-soc-success py-1 px-2 text-xs" onclick="handleAlertAction('{% url 'alerts:resolve' alert.pk %}', 'alert-row-{{ alert.pk }}', 'resolve')">
+                                            <i class="bi bi-check-lg"></i> Resolve
+                                        </button>
+                                    {% else %}
+                                        <span class="text-muted text-xs font-monospace">Resolved</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No security alerts matching current filter criteria.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/alerts.js' %}"></script>
+{% endblock %}

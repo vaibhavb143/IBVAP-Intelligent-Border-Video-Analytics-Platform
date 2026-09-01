@@ -1,0 +1,12 @@
+<div class="soc-card text-center p-5">
+    <div class="kpi-icon-wrap cyan mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.6rem;">
+        <i class="bi {{ icon|default:'bi-shield-check' }}"></i>
+    </div>
+    <h5 class="fw-bold text-white mb-1">{{ title|default:'No Records Found' }}</h5>
+    <p class="text-muted small mb-3">{{ message|default:'All monitored sectors are operating within standard parameters.' }}</p>
+    {% if action_url %}
+        <a href="{{ action_url }}" class="btn-soc-primary mx-auto">
+            {{ action_label|default:'Refresh Stream' }}
+        </a>
+    {% endif %}
+</div>

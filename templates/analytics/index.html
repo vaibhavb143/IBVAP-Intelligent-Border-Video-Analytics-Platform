@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Surveillance Analytics — IBVAP{% endblock %}
+
+{% block content %}
+<div class="analytics-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-graph-up-arrow text-cyan"></i>
+                Surveillance Analytics & Intelligence Dashboard
+            </h1>
+            <p class="page-subtitle">Long-term threat trends, peak incident hours, camera activity distribution, and forensic pattern recognition.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm">
+                <a href="?timeframe=24h" class="btn btn-soc-{% if timeframe == '24h' %}primary{% else %}secondary{% endif %}">Last 24 Hours</a>
+                <a href="?timeframe=7d" class="btn btn-soc-{% if timeframe == '7d' %}primary{% else %}secondary{% endif %}">7 Days</a>
+                <a href="?timeframe=30d" class="btn btn-soc-{% if timeframe == '30d' %}primary{% else %}secondary{% endif %}">30 Days</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Top Summary KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap cyan">
+                <i class="bi bi-journal-check"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ total_events }}</div>
+                <div class="kpi-label">Logged Incidents</div>
+                <div class="kpi-trend text-cyan font-monospace">All Sectors</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap red">
+                <i class="bi bi-exclamation-diamond"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ total_alerts }}</div>
+                <div class="kpi-label">Generated Alerts</div>
+                <div class="kpi-trend text-danger font-monospace">18 Critical/High</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap yellow">
+                <i class="bi bi-car-front"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ total_anpr }}</div>
+                <div class="kpi-label">ANPR Scans</div>
+                <div class="kpi-trend text-muted font-monospace">Checkpoint Flow</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap orange">
+                <i class="bi bi-shield-slash"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ anpr_matches }}</div>
+                <div class="kpi-label">Watchlist Hits</div>
+                <div class="kpi-trend text-orange font-monospace">100% Intercepted</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6 Chart.js Tactical Security Graphs (2x3 Grid) -->
+    <div class="row g-4">
+        <!-- 1. Events by Hour -->
+        <div class="col-lg-8">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-clock-history text-cyan"></i>
+                        Incident Density by Hour (24-Hour Timeline)
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-cyan font-monospace">PEAK: 02:00 - 05:00 IST</span>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="chartHourlyEvents"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Threat Level Distribution -->
+        <div class="col-lg-4">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-pie-chart text-cyan"></i>
+                        Threat Severity Distribution
+                    </div>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="chartThreatDistribution"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Camera Activity Breakdown -->
+        <div class="col-lg-6">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-camera-video text-cyan"></i>
+                        Optical Node Activity Index
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-cyan font-monospace">BOP-03 HIGHEST</span>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="chartCameraActivity"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Detection Types Breakdown -->
+        <div class="col-lg-6">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-layers text-cyan"></i>
+                        AI Classification Category Totals
+                    </div>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="chartDetectionTypes"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ANPR Trends -->
+        <div class="col-lg-6">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-speedometer2 text-cyan"></i>
+                        ANPR Checkpoint Traffic vs Watchlist Matches
+                    </div>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="chartAnprTrends"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Weekly Alert Severity Trends -->
+        <div class="col-lg-6">
+            <div class="soc-card h-100">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-bar-chart-steps text-cyan"></i>
+                        7-Day Multi-Severity Alert Distribution
+                    </div>
+                </div>
+                <div style="height: 280px;">
+                    <canvas id="chartWeeklyAlerts"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/charts.js' %}"></script>
+{% endblock %}

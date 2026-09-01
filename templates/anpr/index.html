@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ANPR Recognition — IBVAP{% endblock %}
+
+{% block content %}
+<div class="anpr-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-car-front text-cyan"></i>
+                Automatic Number Plate Recognition (ANPR / OCR)
+            </h1>
+            <p class="page-subtitle">Real-time vehicle license plate extraction, automated watchlist cross-matching, and border checkpoint logging.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger p-2 font-monospace">1 ACTIVE WATCHLIST MATCH</span>
+        </div>
+    </div>
+
+    <!-- ANPR Top KPIs -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap cyan">
+                <i class="bi bi-card-text"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ total_plates }}</div>
+                <div class="kpi-label">Plates Processed</div>
+                <div class="kpi-trend text-cyan font-monospace">PaddleOCR Active</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap red">
+                <i class="bi bi-shield-exclamation"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ watchlist_matches_count }}</div>
+                <div class="kpi-label">Watchlist Matches</div>
+                <div class="kpi-trend text-danger font-monospace">Immediate Intercept</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon-wrap yellow">
+                <i class="bi bi-truck"></i>
+            </div>
+            <div>
+                <div class="kpi-value">{{ vehicles_today }}</div>
+                <div class="kpi-label">Vehicles Today</div>
+                <div class="kpi-trend text-muted font-monospace">GATE-01 Entry Point</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Highlighted Watchlist Match Card -->
+    {% if top_match %}
+        <div class="soc-card glow-red mb-4" style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.4);">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="kpi-icon-wrap red" style="width: 52px; height: 52px; font-size: 1.6rem;">
+                        <i class="bi bi-exclamation-octagon-fill"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger font-monospace">PRIORITY WATCHLIST MATCH</span>
+                            <span class="text-xs text-muted font-monospace">{{ top_match.timestamp|timesince }} ago</span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-0 mt-1 d-flex align-items-center gap-2">
+                            Plate: <span class="plate-tag">{{ top_match.plate_number }}</span>
+                            <span class="fs-6 text-muted">({{ top_match.vehicle_type }})</span>
+                        </h4>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end font-monospace small">
+                        <div class="text-muted">Detected at: <span class="text-cyan fw-bold">{{ top_match.camera.camera_id }} ({{ top_match.camera.name }})</span></div>
+                        <div class="text-muted">OCR Confidence: <span class="text-success fw-bold">{{ top_match.confidence|floatformat:2 }}</span> &bull; Speed: <span class="text-warning">{{ top_match.speed_estimate }}</span></div>
+                    </div>
+                    <a href="{% url 'watchlist:list' %}" class="btn-soc-primary">
+                        <i class="bi bi-shield-check"></i> View Watchlist Record
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- ANPR Detection Stream Table -->
+    <div class="soc-card">
+        <div class="card-header-soc">
+            <div class="card-title-soc">
+                <i class="bi bi-list-check text-cyan"></i>
+                Real-Time ANPR Detection Feed
+            </div>
+            <span class="badge bg-dark border border-secondary text-cyan font-monospace">GATE-01 OPTICAL FEED</span>
+        </div>
+
+        <div class="soc-table-wrapper">
+            <table class="soc-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Camera</th>
+                        <th>License Plate</th>
+                        <th>Vehicle Classification</th>
+                        <th>OCR Confidence</th>
+                        <th>Watchlist Verification</th>
+                        <th>Approach Velocity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in detections %}
+                        <tr>
+                            <td class="font-monospace text-muted">{{ item.timestamp|date:"H:i:s" }} IST</td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary text-cyan font-monospace">
+                                    {{ item.camera.camera_id }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="plate-tag">{{ item.plate_number }}</span>
+                            </td>
+                            <td class="fw-bold text-white">{{ item.vehicle_type }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2 font-monospace">
+                                    <div class="progress flex-grow-1" style="height: 6px; width: 60px; background: #1e293b;">
+                                        <div class="progress-bar bg-cyan" style="width: {{ item.confidence|floatformat:0 }}%;"></div>
+                                    </div>
+                                    <span class="text-cyan small">{{ item.confidence|floatformat:2 }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if item.is_watchlist_match %}
+                                    <span class="badge bg-danger font-monospace">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> WATCHLIST MATCH
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success bg-opacity-25 text-success border border-success font-monospace">
+                                        <i class="bi bi-check-circle me-1"></i> CLEARED
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="font-monospace text-muted small">{{ item.speed_estimate }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No vehicle license plates logged in current session.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

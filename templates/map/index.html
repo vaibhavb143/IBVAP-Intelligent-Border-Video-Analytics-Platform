@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Border Tactical Map — IBVAP{% endblock %}
+
+{% block content %}
+<div class="map-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-map text-cyan"></i>
+                Border Tactical Surveillance Map
+            </h1>
+            <p class="page-subtitle">Interactive spatial sector monitoring, camera telemetry nodes, and perimeter breach indicators.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-dark border border-secondary text-cyan font-monospace">RADAR SWEEP ACTIVE</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Interactive Border Sector Tactical Map Canvas Viewport -->
+        <div class="col-xl-8">
+            <div class="soc-card p-0 overflow-hidden">
+                <div class="card-header-soc p-3 m-0 bg-dark">
+                    <div class="card-title-soc">
+                        <i class="bi bi-crosshair text-cyan"></i>
+                        Sector Alpha-Bravo Frontier Tactical Grid (1:25,000)
+                    </div>
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success font-monospace">
+                        <span class="live-dot me-1"></span> LIVE SENSOR RADAR
+                    </span>
+                </div>
+
+                <div class="map-viewport-container" id="tacticalMapContainer">
+                    <div class="map-grid-overlay"></div>
+                    <div class="map-radar-sweep"></div>
+
+                    <!-- Border Line Visualization SVG -->
+                    <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;">
+                        <!-- Sector 01-03 Virtual Fence Barrier -->
+                        <path d="M 80 120 Q 280 200 450 160 T 750 320" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="8 6" opacity="0.75" />
+                        <!-- Buffer Corridor -->
+                        <path d="M 120 150 Q 300 230 480 190 T 780 350" fill="none" stroke="#00f2fe" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+                        
+                        <text x="140" y="110" fill="#f43f5e" font-family="'JetBrains Mono'" font-size="11" opacity="0.8">⚡ ZERO LINE BORDER FENCE</text>
+                        <text x="320" y="270" fill="#00f2fe" font-family="'JetBrains Mono'" font-size="10" opacity="0.6">BUFFER PATROL CORRIDOR</text>
+                    </svg>
+
+                    <!-- Tactical Map Node Pins (Cameras) -->
+                    <!-- BOP-01 (Northern Ridge) -->
+                    <div class="map-node-pin" style="top: 28%; left: 32%;" onclick="selectMapNode('BOP-01', 'Forward Outpost Alpha', 'LIVE', 'HIGH', 70, 32.7310, 74.8520)">
+                        <div class="node-pulse text-warning">
+                            <i class="bi bi-camera-video-fill fs-5"></i>
+                        </div>
+                        <span class="badge bg-dark border border-warning text-warning font-monospace text-xs mt-1 d-block text-center">BOP-01</span>
+                    </div>
+
+                    <!-- BOP-02 (Eastern Lowlands) -->
+                    <div class="map-node-pin" style="top: 65%; left: 62%;" onclick="selectMapNode('BOP-02', 'Perimeter Outpost Bravo', 'SIMULATION', 'NORMAL', 35, 32.7240, 74.8610)">
+                        <div class="node-pulse text-success">
+                            <i class="bi bi-camera-video-fill fs-5"></i>
+                        </div>
+                        <span class="badge bg-dark border border-success text-success font-monospace text-xs mt-1 d-block text-center">BOP-02</span>
+                    </div>
+
+                    <!-- BOP-03 (Restricted Outpost - Intrusion Breach) -->
+                    <div class="map-node-pin" style="top: 22%; left: 74%;" onclick="selectMapNode('BOP-03', 'Zero Line Virtual Fence Outpost', 'SIMULATION', 'CRITICAL', 92, 32.7380, 74.8480)">
+                        <div class="node-pulse text-danger">
+                            <i class="bi bi-exclamation-octagon-fill fs-4"></i>
+                        </div>
+                        <span class="badge bg-danger text-white font-monospace text-xs mt-1 d-block text-center shadow">BOP-03 (BREACH)</span>
+                    </div>
+
+                    <!-- GATE-01 (Main Checkpost Gate) -->
+                    <div class="map-node-pin" style="top: 75%; left: 24%;" onclick="selectMapNode('GATE-01', 'Main Checkpost & Barrier', 'SIMULATION', 'HIGH', 80, 32.7210, 74.8450)">
+                        <div class="node-pulse text-info">
+                            <i class="bi bi-car-front-fill fs-5"></i>
+                        </div>
+                        <span class="badge bg-dark border border-info text-cyan font-monospace text-xs mt-1 d-block text-center">GATE-01</span>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-dark d-flex flex-wrap align-items-center justify-content-between gap-3 text-muted small font-monospace">
+                    <div>
+                        <span class="text-white me-2">LEGEND:</span>
+                        <span class="text-danger me-2"><i class="bi bi-circle-fill" style="font-size: 8px;"></i> Critical Breach</span>
+                        <span class="text-warning me-2"><i class="bi bi-circle-fill" style="font-size: 8px;"></i> High Risk / Watchlist</span>
+                        <span class="text-success me-2"><i class="bi bi-circle-fill" style="font-size: 8px;"></i> Operational Patrol</span>
+                    </div>
+                    <div>SECTOR GPS DATUM: WGS-84 &bull; GRID REF: 43S XQ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Telemetry Node Details Panel & Sectors List -->
+        <div class="col-xl-4 d-flex flex-column gap-4">
+            <!-- Dynamic Telemetry Inspector Card -->
+            <div id="mapTelemetryPanel">
+                <div class="soc-card glow-cyan">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                        <span class="fw-bold font-monospace text-info">BOP-03</span>
+                        <span class="badge bg-danger">CRITICAL RISK</span>
+                    </div>
+                    <h6 class="fw-bold text-white mb-2">Zero Line Virtual Fence Outpost</h6>
+                    <div class="d-flex flex-column gap-2 text-muted small font-monospace">
+                        <div><i class="bi bi-geo-alt text-cyan"></i> Coordinates: <span class="text-white">32.7380 N, 74.8480 E</span></div>
+                        <div><i class="bi bi-shield-exclamation text-danger"></i> Sector Threat Score: <span class="text-danger fw-bold">92 / 100</span></div>
+                        <div><i class="bi bi-camera-video text-success"></i> Optical Feeds: <span class="text-white">Active (Virtual Fence AI)</span></div>
+                        <div><i class="bi bi-broadcast text-info"></i> Sensor Array: <span class="text-white">Thermal Movement Active</span></div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top d-flex gap-2">
+                        <a href="{% url 'cameras:list' %}" class="btn-soc-primary w-100 justify-content-center">
+                            <i class="bi bi-eye"></i> View Sector Feeds
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitored Border Sectors Summary -->
+            <div class="soc-card">
+                <div class="card-header-soc">
+                    <div class="card-title-soc">
+                        <i class="bi bi-layers text-cyan"></i>
+                        Frontier Sector Zones
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    {% for sector in sectors %}
+                        <div class="p-2 bg-dark bg-opacity-50 rounded border border-secondary d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="font-monospace text-white fw-bold small">{{ sector.name }}</div>
+                                <div class="text-xs text-muted font-monospace">Nodes: {{ sector.cameras|join:", " }}</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge {% if sector.risk == 'CRITICAL' %}bg-danger{% elif sector.risk == 'HIGH' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} font-monospace">
+                                    {{ sector.risk }}
+                                </span>
+                                <div class="text-xs text-danger font-monospace mt-1">{{ sector.threat_score }}/100</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/map.js' %}"></script>
+{% endblock %}

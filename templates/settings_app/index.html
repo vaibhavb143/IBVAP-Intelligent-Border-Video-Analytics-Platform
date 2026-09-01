@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Settings — IBVAP{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-gear text-cyan"></i>
+                System Configuration & Security Parameters
+            </h1>
+            <p class="page-subtitle">Adjust surveillance detection windows, threat scoring weights, officer role controls, and system parameters.</p>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'settings_app:index' %}">
+        {% csrf_token %}
+        <div class="row g-4">
+            <!-- Left Column: Core Parameters -->
+            <div class="col-lg-6 d-flex flex-column gap-4">
+                <!-- 1. Night Detection Configuration -->
+                <div class="soc-card">
+                    <div class="card-header-soc">
+                        <div class="card-title-soc">
+                            <i class="bi bi-moon-stars text-cyan"></i>
+                            Night-Time Vision & Movement Curfew
+                        </div>
+                        <span class="badge bg-purple text-white font-monospace" style="background-color: #8b5cf6;">CURFEW ACTIVE</span>
+                    </div>
+
+                    <p class="text-muted small mb-3">
+                        Define high-sensitivity surveillance hours. Motion detected during this window receives elevated threat scoring.
+                    </p>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">CURFEW START TIME (IST)</label>
+                            <input type="text" name="night_start_time" class="form-control soc-input font-monospace" value="{{ config.night_start_time }}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">CURFEW END TIME (IST)</label>
+                            <input type="text" name="night_end_time" class="form-control soc-input font-monospace" value="{{ config.night_end_time }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Threat Scoring Weights -->
+                <div class="soc-card">
+                    <div class="card-header-soc">
+                        <div class="card-title-soc">
+                            <i class="bi bi-sliders text-cyan"></i>
+                            Rule-Based Threat Scoring Weights
+                        </div>
+                        <span class="badge bg-danger font-monospace">ALGORITHM ENGINE</span>
+                    </div>
+
+                    <p class="text-muted small mb-3">
+                        Configure baseline score increments (0-100 scale) for automated risk level estimation.
+                    </p>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">PERSON DETECTION (+WEIGHT)</label>
+                            <input type="number" name="weight_person_detection" class="form-control soc-input font-monospace" value="{{ config.weight_person_detection }}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">NIGHT MOVEMENT (+WEIGHT)</label>
+                            <input type="number" name="weight_night_movement" class="form-control soc-input font-monospace" value="{{ config.weight_night_movement }}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">RESTRICTED ZONE (+WEIGHT)</label>
+                            <input type="number" name="weight_restricted_zone" class="form-control soc-input font-monospace" value="{{ config.weight_restricted_zone }}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">PERIMETER LOITERING (+WEIGHT)</label>
+                            <input type="number" name="weight_loitering" class="form-control soc-input font-monospace" value="{{ config.weight_loitering }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold font-monospace">WATCHLIST VEHICLE MATCH (+WEIGHT)</label>
+                            <input type="number" name="weight_watchlist_vehicle" class="form-control soc-input font-monospace" value="{{ config.weight_watchlist_vehicle }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. General Preferences -->
+                <div class="soc-card">
+                    <div class="card-header-soc">
+                        <div class="card-title-soc">
+                            <i class="bi bi-toggles text-cyan"></i>
+                            General SOC Preferences
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">FEED SYNC INTERVAL (SECONDS)</label>
+                            <input type="number" name="auto_refresh_rate" class="form-control soc-input font-monospace" value="{{ config.auto_refresh_rate }}">
+                        </div>
+                        <div class="col-sm-6 d-flex align-items-center mt-4 pt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="audio_alerts" id="audioAlerts" {% if config.audio_alerts %}checked{% endif %}>
+                                <label class="form-check-label text-white small" for="audioAlerts">Enable Critical Audio Sirens</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-soc-primary w-100 justify-content-center py-2 fs-6">
+                        <i class="bi bi-check-circle-fill"></i> Save Configuration Parameters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: User Management Matrix & System Information -->
+            <div class="col-lg-6 d-flex flex-column gap-4">
+                <!-- User Roles Matrix -->
+                <div class="soc-card">
+                    <div class="card-header-soc">
+                        <div class="card-title-soc">
+                            <i class="bi bi-person-badge text-cyan"></i>
+                            Access Control & Role Matrix
+                        </div>
+                        <span class="badge bg-dark border border-secondary text-cyan font-monospace">RBAC READY</span>
+                    </div>
+
+                    <div class="soc-table-wrapper">
+                        <table class="soc-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature / Module</th>
+                                    <th class="text-center">Administrator</th>
+                                    <th class="text-center">Security Officer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Command Dashboard & Feeds</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Full</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Full</td>
+                                </tr>
+                                <tr>
+                                    <td>Camera Source Management</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Edit/Add</td>
+                                    <td class="text-center text-info"><i class="bi bi-eye"></i> View Only</td>
+                                </tr>
+                                <tr>
+                                    <td>Alert Acknowledge & Resolve</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Yes</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Yes</td>
+                                </tr>
+                                <tr>
+                                    <td>Watchlist Target Management</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Edit/Add</td>
+                                    <td class="text-center text-info"><i class="bi bi-eye"></i> View Only</td>
+                                </tr>
+                                <tr>
+                                    <td>Algorithm Weights Configuration</td>
+                                    <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i> Configurable</td>
+                                    <td class="text-center text-muted"><i class="bi bi-x-circle"></i> Locked</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div class="soc-card">
+                    <div class="card-header-soc">
+                        <div class="card-title-soc">
+                            <i class="bi bi-info-circle text-cyan"></i>
+                            Platform Architecture & System Info
+                        </div>
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success font-monospace">v1.0.0 (PHASE 1)</span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 text-muted small font-monospace">
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>Project Name:</span>
+                            <strong class="text-white">{{ SYSTEM_FULL_NAME }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>Framework:</span>
+                            <span class="text-cyan">Python 3.11 / Django 5.x / DRF</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>Database:</span>
+                            <span class="text-white">SQLite3 (Local) / PostgreSQL (Render Production)</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>Frontend Stack:</span>
+                            <span class="text-white">Django Templates, Bootstrap 5, Custom SOC CSS, Chart.js</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                            <span>Phase 2 Readiness:</span>
+                            <span class="text-warning">YOLOv8, OpenCV, PaddleOCR pipeline hooks ready</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span>Deployment Target:</span>
+                            <span class="text-success">Render / Docker / Ubuntu Linux</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
