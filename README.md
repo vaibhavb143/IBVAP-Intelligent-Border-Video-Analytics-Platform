@@ -1,32 +1,98 @@
-# IBVAP — Intelligent Border Video Analytics Platform
+# 🛡️ IBVAP — Intelligent Border Video Analytics Platform
 
-> **"Transforming Existing CCTV into Intelligent Border Security"**  
-> *AI-powered real-time video analytics for smarter surveillance.*
-
-IBVAP is a border surveillance and video analytics platform developed for the **Smart India Hackathon (SIH)**. The platform upgrades existing CCTV and border outpost (BOP) optical surveillance infrastructure into an automated threat monitoring command center without replacing expensive camera hardware.
+> **"Transforming Existing CCTV Infrastructure into an Autonomous AI-Driven Border Defense Network"**  
+> *Real-time Computer Vision • Edge Analytics • Facial Recognition (FRS) • ANPR • Virtual Fence Intrusion • Behavioral Threat Intelligence*
 
 ---
 
-## 📌 Phase 1 Scope & Status
+## 📌 Problem Statement & Solution Overview
 
-This repository contains **Phase 1** of IBVAP:
-- **Implemented**: Complete Django command-center architecture, database schema, authentication & role management, Dark SOC user interface, 2x2 live/simulation camera grid (with local webcam integration), live alert triage, searchable forensic event timeline with evidence dossier modal, ANPR monitoring & vehicle watchlist manager, tactical border sector map, 6 Chart.js intelligence graphs, customizable night detection and threat weights, demo data seeder, and automated Render deployment readiness.
-- **Prototype**: Rule-based threat scoring engine (92/100 calculation breakdown), simulated border camera streams, simulated OCR confidence scores.
-- **Planned (Phase 2)**: Integration of YOLOv8 object detection, OpenCV video streaming pipelines, PaddleOCR plate recognition models, and WebSocket live frame push via Django Channels.
+### The Challenge
+Border security forces deploy standard CCTV cameras across Border Out Posts (BOPs), checkposts, and strategic perimeter lines. However, conventional CCTV systems only offer passive video recording, requiring continuous human observation. Advanced capabilities like **Facial Recognition Systems (FRS)**, **Automatic Number Plate Recognition (ANPR)**, **Intrusion Detection**, and **Behavioral Tracking** typically require expensive proprietary hardware and specialized smart cameras, making large-scale deployment unfeasible in remote border terrain.
+
+### The IBVAP Solution
+**IBVAP** is a software-defined, AI-driven surveillance command platform that transforms **existing legacy CCTV cameras and IP/RTSP streams** into an intelligent, automated perimeter defense system without requiring hardware replacements.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                      IBVAP EDGE SURVEILLANCE PIPELINE                            │
+│                                                                                  │
+│  [ Existing CCTV / RTSP / USB Feeds ]                                            │
+│                 │                                                                │
+│                 ▼                                                                │
+│  [ AI Edge Analytics & Computer Vision Layer ]                                   │
+│  ├── 👤 Human Detection & Tracking                                              │
+│  ├── 🚗 Vehicle Classification (Car, SUV, Truck, Bus, Van, Bike)                 │
+│  ├── 🎯 Facial Recognition System (FRS Biometric Watchlist Matching)             │
+│  ├── 🔍 ANPR / OCR License Plate Scanning & Watchlist Intercepts                 │
+│  ├── ⚡ Virtual Fence & Tripwire Intrusion Detection                             │
+│  ├── 🚷 Behavioral Analytics (Low-Crawl, Loitering, Contraband Drops, Surges)    │
+│  └── 🌙 Thermal / Night-Time Movement Detection (Curfew Hours)                   │
+│                 │                                                                │
+│                 ▼                                                                │
+│  [ Tactical Threat Scoring Engine (0-100) & Automated Alert Dispatch ]           │
+│                 │                                                                │
+│        ┌────────┴─────────────────────────┐                                      │
+│        ▼                                  ▼                                      │
+│  [ Live Tactical Command HUD ]      [ Django Unfold Super Admin ]                │
+│  (For Field Duty Officers)          (For Base Commanders & Admins)               │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Core Features & Capabilities
+
+### 1. 🛡️ Real-Time Perimeter Intrusion & Virtual Tripwire
+- Configurable virtual tripwire zones across boundary sectors.
+- Instant threat alerts when unauthorized personnel cross restricted lines.
+
+### 2. 🎯 Biometric Facial Recognition System (FRS) & Suspect Watchlist
+- Real-time facial detection and biometric feature vector matching.
+- Dedicated **Persons of Interest / Suspect Watchlist** (`WatchlistPerson`) categorizing *Cross-Border Infiltrators*, *Smugglers*, *Fugitives*, and *POW / Detainees*.
+- Priority threat tags (*Critical Immediate Intercept*, *High Risk*, *Under Investigation*).
+
+### 3. 🚗 Automated Number Plate Recognition (ANPR) & Vehicle Radar
+- Real-time optical character recognition (OCR) of vehicle registration plates.
+- Vehicle classification (*Sedan, SUV, Truck, Motorcycle, Cargo Van*).
+- Instant cross-referencing against the **Border Vehicle Watchlist** (`WatchlistVehicle`) with speed and vector estimates.
+
+### 4. 🚷 Behavioral & Suspicious Activity Analytics
+- Autonomous detection of tactical and suspicious movement patterns:
+  - 🚷 `CRAWLING_CONCEALMENT`: Low-crawl / prone movement across vegetation.
+  - 📦 `SUSPICIOUS_PACKAGE_DROP`: Unattended contraband or blast hazard quarantine.
+  - 🚶 `PERIMETER_LOITERING`: Reconnaissance loitering near zero-line (>180s).
+  - 👥 `CROWD_SURGE`: Abnormal clustering at gate checkpoints.
+
+### 5. 🌙 Night-Time & Thermal Vision Monitoring
+- Scheduled curfew windows (e.g. 22:00 – 05:00) with heightened threat multipliers for nocturnal movement detection.
+
+### 6. 🗺️ Tactical Sector Radar & Geospatial BOP Map
+- Interactive map plotting Border Observation Posts (BOPs) with live operational status (*Normal, Elevated, High, Critical*).
+
+### 7. 📈 Threat Intelligence & Analytics Dashboard
+- 6 Chart.js interactive visualizations covering hourly breach frequencies, sector threat heatmaps, camera uptime readiness, and alert triage timelines.
+
+### 8. ⚙️ Django Unfold Command Super Admin Console
+- Modern, high-tech admin backend powered by **`django-unfold`**:
+  - Live Border Telemetry HUD (Feeds Online %, Active Critical Threats, Radar Hits).
+  - Bulk actions (*Activate AI Modules*, *Set Status Online/Standby*, *Acknowledge Incidents*).
+  - Tabbed fieldsets, audit history, and role-based access control.
 
 ---
 
 ## 🛠 Technology Stack
 
-- **Backend**: Python 3.11, Django 5.x, Django REST Framework
-- **Frontend**: Django Templates, Bootstrap 5, Custom SOC Dark Modern CSS (Glassmorphism), Chart.js
-- **Database**: SQLite3 (default zero-config local run) with seamless PostgreSQL support via `DATABASE_URL` (for Render)
-- **Deployment**: Render-ready with `Procfile`, `build.sh`, `runtime.txt`, WhiteNoise static compression
-- **Version Control**: Git & GitHub friendly `.gitignore`
+- **Backend Framework**: Python 3.11, Django 5.x, Django REST Framework
+- **Super Admin Engine**: `django-unfold>=0.91.0` (Tailwind-styled Command Center with live telemetry callback)
+- **Frontend / UI**: Django Templates, Bootstrap 5, Vanilla CSS Glassmorphism, Material Symbols, Bootstrap Icons
+- **Data Visualization**: Chart.js Interactive Dashboards
+- **Database**: SQLite3 (Local Development) / PostgreSQL via `dj-database-url` (Production)
+- **Static Assets & Deployment**: WhiteNoise Compression, Gunicorn WSGI, Render-ready configuration
 
 ---
 
-## 🗂 Project Structure
+## 🗂 Project Directory Structure
 
 ```
 IBVAP/
@@ -38,118 +104,143 @@ IBVAP/
 ├── .env.example
 ├── .gitignore
 ├── README.md
-├── ibvap_core/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
+├── ibvap_core/                # Project Settings, URLs, ASGI & WSGI
+│   ├── settings.py           # Unfold Theme, INSTALLED_APPS, Database Config
+│   ├── urls.py               # Root URL Dispatcher
 │   ├── wsgi.py
 │   └── asgi.py
 ├── apps/
-│   ├── accounts/          # Officer Authentication, User Profiles & Roles
-│   ├── dashboard/         # Command Center Dashboard, 2x2 Feed Grid, Threat Gauge
-│   ├── cameras/           # Optical Feed Management & AI Module Switches
-│   ├── alerts/            # Real-time Alert Triage & Acknowledgment Queue
-│   ├── events/            # Historical Event Logs & Evidence Dossier Modal
-│   ├── anpr/              # ANPR Extraction & Watchlist Match Spotlight
-│   ├── watchlist/         # Vehicle Watchlist Intelligence Registry
-│   ├── map/               # Interactive Border Sector Tactical Radar Map
-│   ├── analytics/         # SOC Metrics & 6 Chart.js Intelligence Graphs
-│   ├── settings_app/      # Curfew Windows & Threat Algorithm Weight Settings
-│   └── core/              # Management Commands (`seed_demo_data`) & Context Processors
+│   ├── accounts/             # Officer Auth, User Profiles, Roles (Admin/Officer)
+│   ├── dashboard/            # Tactical Command HUD & Live Camera Stream Grid
+│   ├── cameras/              # Camera Node Registry & Edge AI Toggles (FRS, ANPR, Behavior)
+│   ├── alerts/               # Real-Time Alert Triage & Officer Dispatch Queue
+│   ├── events/               # Forensic Security Event Logs & Evidence Dossier
+│   ├── anpr/                 # License Plate Scans & OCR Match Pipeline
+│   ├── watchlist/            # Dual-Tab Intelligence Watchlist (FRS Suspects + ANPR Vehicles)
+│   ├── map/                  # Interactive Geospatial BOP Sector Map
+│   ├── analytics/            # Threat Intelligence Charts & Analytics
+│   ├── settings_app/         # Curfew Windows & Threat Scoring Weight Calibration
+│   └── core/                 # Admin Dashboard Callbacks, Context Processors & Seed Commands
+│       └── management/commands/
+│           ├── seed_demo_data.py       # Baseline Demo Data Seeder
+│           └── seed_hackathon_demo.py  # FRS, Behavioral & Infiltrator Data Seeder
 ├── static/
-│   ├── css/
-│   │   └── main.css       # Dark SOC Theme, Glassmorphism, Neon HUD Reticles
-│   └── js/
-│       ├── main.js        # Live Clock, Sidebar Collapse, Toast Banners
-│       ├── dashboard.js   # Webcam Stream Engine + Tactical Canvas Stream Simulators
-│       ├── charts.js      # 6 Chart.js Visualizations
-│       ├── map.js         # Interactive Map Sector Inspector
-│       └── alerts.js      # AJAX Alert Actions
+│   ├── css/main.css          # Dark SOC Theme, Cyber Accents, Glassmorphic Panels
+│   └── js/                   # Live Tickers, Chart.js Visuals, Map & Alert Controllers
 └── templates/
-    ├── base.html          # Persistent SOC Topbar & Sidebar Layout
-    ├── components/        # Navbar, Sidebar, Evidence Modal, Empty State
-    ├── accounts/login.html
-    ├── dashboard/index.html
-    ├── cameras/index.html
-    ├── alerts/index.html
-    ├── events/index.html
-    ├── anpr/index.html
-    ├── watchlist/index.html
-    ├── map/index.html
-    ├── analytics/index.html
+    ├── base.html             # Main Tactical Frame (Topbar & Sidebar)
+    ├── admin/index.html      # Custom Unfold Command Telemetry HUD
+    ├── accounts/login.html   # Dedicated Radar HUD Login with 1-Click Demo Chips
+    ├── dashboard/index.html  # Live Command Center HUD
+    ├── cameras/index.html    # Multi-Cam Grid & Module Switches
+    ├── watchlist/index.html  # Dual-Tab Biometric FRS & Vehicle Registry
+    ├── alerts/index.html     # Incident Triage Board
+    ├── events/index.html     # Forensic Incident Audit Logs
+    ├── anpr/index.html       # ANPR Live Scans Hub
+    ├── map/index.html        # Tactical BOP Sector Map
+    ├── analytics/index.html  # Threat Analytics Suite
     └── settings_app/index.html
 ```
 
 ---
 
-## 🚀 Quick Start & Running Locally
+## 🚀 Quick Start & Installation
 
 ### 1. Prerequisites
-Ensure Python 3.10+ is installed on your system.
+- Python 3.10 or higher
+- Git
 
-### 2. Install Dependencies
+### 2. Clone Repository & Setup Environment
+```bash
+# Clone the repository
+git clone https://github.com/vaibhavb143/IBVAP-Intelligent-Border-Video-Analytics-Platform.git
+cd IBVAP-Intelligent-Border-Video-Analytics-Platform
+
+# Create and activate virtual environment (Optional but Recommended)
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Initialize Database Migrations
+### 4. Run Database Migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 4. Seed Realistic SIH Demo Data
-Populates the database with default admin & officer accounts, 4 tactical cameras, alerts, historical events, ANPR records, and watchlist items:
+### 5. Seed Realistic Hackathon Demonstration Data
+Populates the database with default officer accounts, tactical border camera feeds, FRS suspects, behavioral breach events, ANPR scans, and priority alerts:
 ```bash
 python manage.py seed_demo_data
+python manage.py seed_hackathon_demo
 ```
 
-### 5. Start Development Server
+### 6. Start the Server
 ```bash
 python manage.py runserver
 ```
-Visit `http://127.0.0.1:8000/` in your browser.
+
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
 
 ---
 
-## 🔐 Demo Credentials
+## 🔐 Demonstration Credentials
 
-| Role | Username | Password | Access Scope |
-|---|---|---|---|
-| **Administrator** | `admin` | `ibvap@2026` | Full SOC + Settings + User Management |
-| **Security Officer** | `officer_singh` | `ibvap@2026` | Tactical Feeds, Alert Triage & Event Logs |
+| Account Role | Username | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| **System Administrator** | `admin` | `ibvap@2026` | Full Platform + Django Unfold Super Admin (`/admin/`) |
+| **Border Security Officer** | `officer_singh` | `ibvap@2026` | Tactical Command HUD, Camera Feeds, Alert Triage, Watchlists |
+
+*Note: The login page at `/auth/login/` features **1-Click Quick Demo Autofill Chips** (`[🛡️ Admin]` and `[👮 Officer]`) for effortless presentation.*
 
 ---
 
-## 🌐 Deploying to Render
+## 🌐 Site Route Map
 
-IBVAP is pre-configured for **1-click deployment on Render**:
+| Page / Module | URL Route | Description |
+| :--- | :--- | :--- |
+| **Officer Terminal Login** | `/auth/login/` | Encrypted authentication with isolated radar scanner & 1-click demo chips. |
+| **Live Command HUD** | `/` | Real-time threat gauge, active camera streams, and incident telemetry. |
+| **Multi-Cam Grid** | `/cameras/` | Live feed management with individual AI module toggles (Human, ANPR, FRS, Behavior, Night). |
+| **Biometric & ANPR Watchlists** | `/watchlist/` | Dual-tab target registry for **FRS Suspects** and **Vehicle Targets**. |
+| **Security Alerts Triage** | `/alerts/` | Incident response inbox with *Acknowledge* and *Resolve* workflows. |
+| **Forensic Event Audit Log** | `/events/` | Immutable log of all detected incursions, coordinates, and confidence ratings. |
+| **ANPR Radar Scans** | `/anpr/` | Real-time OCR license plate detection logs with vehicle classification. |
+| **Tactical Sector Map** | `/map/` | Geospatial map plotting Border Observation Posts (BOPs) with status markers. |
+| **Threat Analytics** | `/analytics/` | 6 Chart.js graphs tracking intrusion trends and sector risk metrics. |
+| **System Preferences** | `/settings/` | Night detection window and threat scoring algorithm weights. |
+| **Django Unfold Super Admin** | `/admin/` | High-tech command console with live surveillance telemetry HUD. |
 
-1. Push this repository to GitHub.
-2. In Render, create a new **Web Service** and connect your GitHub repo.
-3. Configure the following settings:
+---
+
+## ☁️ Production Deployment (Render-Ready)
+
+IBVAP is fully configured for automated cloud deployment on **Render**:
+
+1. Push your code to GitHub.
+2. In the Render Dashboard, create a **New Web Service** and connect this repository.
+3. Configure the build parameters:
    - **Environment**: `Python`
    - **Build Command**: `./build.sh`
    - **Start Command**: `gunicorn ibvap_core.wsgi:application`
-4. Set Environment Variables (optional):
+4. Environment Variables (optional):
    - `DEBUG`: `False`
    - `SECRET_KEY`: `<your-production-secret-key>`
-   - `ALLOWED_HOSTS`: `your-app-name.onrender.com`
-   - `DATABASE_URL`: `(Render PostgreSQL connection string, or leave empty for SQLite)`
+   - `DATABASE_URL`: `(PostgreSQL Connection String or leave blank for SQLite)`
 
-`build.sh` automatically installs dependencies, collects static assets, applies database migrations, and seeds the demo data.
+`build.sh` automatically installs dependencies, runs migrations, collects static assets, and seeds the demonstration dataset.
 
 ---
 
-## 🛡 System Pages Overview
+## 📄 License & Intellectual Property
 
-1. **Terminal Authentication (`/auth/login/`)**: Command-center styled authentication with animated radar sweep and credentials helper.
-2. **Security Command Dashboard (`/`)**: 6 KPI metric cards, 2x2 camera grid (`BOP-01` webcam + `BOP-02/03/GATE-01` simulated streams), circular Threat Intelligence gauge (92/100), live alert stream, and recent events log.
-3. **Camera Management (`/cameras/`)**: Node registry with AI module switches (Human, Vehicle, ANPR, Intrusion, Night) and Add Camera modal.
-4. **Security Alerts (`/alerts/`)**: Alert triage with severity filters (Critical, High, Medium, Low, Resolved) and AJAX Acknowledge/Resolve actions.
-5. **Historical Events (`/events/`)**: Filterable timeline with forensic evidence dossier modal.
-6. **ANPR Hub (`/anpr/`)**: Vehicle license plate detection logs with highlighted Watchlist Match card.
-7. **Watchlist Intelligence (`/watchlist/`)**: Flagged target vehicle database with Add Vehicle modal.
-8. **Border Tactical Map (`/map/`)**: Simulated tactical radar sector map with camera node popups.
-9. **Analytics (`/analytics/`)**: 6 Chart.js graphs (Hourly events, Threat distribution, Camera activity, Detection types, ANPR trends, Weekly alerts).
-10. **System Settings (`/settings/`)**: Night detection curfew window (22:00–05:00), threat scoring algorithm weights, and RBAC matrix.
+Developed for the **Smart India Hackathon (SIH)**.  
+Project: **IBVAP — Intelligent Border Video Analytics Platform**  
+*All rights reserved.*
