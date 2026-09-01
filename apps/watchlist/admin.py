@@ -2,7 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin
 from unfold.decorators import display, action
 from unfold.contrib.filters.admin import ChoicesDropdownFilter
-from .models import WatchlistVehicle
+from .models import WatchlistVehicle, WatchlistPerson
 
 
 @admin.register(WatchlistVehicle)
@@ -99,3 +99,111 @@ class WatchlistVehicleAdmin(ModelAdmin):
     def mark_active_threat(self, request, queryset):
         updated = queryset.update(status='Active')
         self.message_user(request, f"{updated} vehicle(s) set to active flag.")
+
+
+@admin.register(WatchlistPerson)
+class WatchlistPersonAdmin(ModelAdmin):
+    list_display = (
+        'person_id',
+        'full_name',
+        'alias',
+        'category',
+        'get_threat_badge',
+        'get_status_badge',
+        'last_seen_sector',
+        'created_at',
+    )
+    list_filter = (
+        ('threat_level', ChoicesDropdownFilter),
+        ('status', ChoicesDropdownFilter),
+        ('category', ChoicesDropdownFilter),
+    )
+    search_fields = ('person_id', 'full_name', 'alias', 'reason_for_flagging', 'last_seen_sector')
+    ordering = ('-threat_level', '-created_at')
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        (
+            'Biometric Identity & Classification',
+            {
+                'classes': ['tab'],
+                'fields': (
+                    'person_id',
+                    ('full_name', 'alias'),
+                    ('category', 'threat_level'),
+                    'status',
+                ),
+            },
+        ),
+        (
+            'Facial Recognition & Intelligence Dossier',
+            {
+                'classes': ['tab'],
+                'fields': (
+                    'facial_embedding_id',
+                    'last_seen_sector',
+                    'reason_for_flagging',
+                ),
+            },
+        ),
+        (
+            'Audit Timestamps',
+            {
+                'classes': ['tab'],
+                'fields': (
+                    ('created_at', 'updated_at'),
+                ),
+            },
+        ),
+    )
+
+    actions = [
+        'mark_person_apprehended',
+        'mark_person_investigating',
+        'mark_person_cleared',
+        'mark_person_active',
+    ]
+
+    @display(
+        description='Threat Level',
+        label={
+            'CRITICAL': 'danger',
+            'HIGH': 'warning',
+            'MEDIUM': 'info',
+            'LOW': 'success',
+        }
+    )
+    def get_threat_badge(self, obj):
+        return obj.threat_level
+
+    @display(
+        description='FRS Status',
+        label={
+            'Active': 'danger',
+            'Apprehended': 'success',
+            'Investigating': 'warning',
+            'Cleared': 'info',
+        }
+    )
+    def get_status_badge(self, obj):
+        return obj.status
+
+    @action(description='Mark as Apprehended / Detained')
+    def mark_person_apprehended(self, request, queryset):
+        updated = queryset.update(status='Apprehended')
+        self.message_user(request, f"{updated} person(s) marked as Apprehended / Detained.")
+
+    @action(description='Mark as Under Investigation')
+    def mark_person_investigating(self, request, queryset):
+        updated = queryset.update(status='Investigating')
+        self.message_user(request, f"{updated} person(s) placed under active investigation.")
+
+    @action(description='Mark as Cleared / Inactive')
+    def mark_person_cleared(self, request, queryset):
+        updated = queryset.update(status='Cleared')
+        self.message_user(request, f"{updated} person(s) marked as Cleared.")
+
+    @action(description='Mark as Active Wanted Target')
+    def mark_person_active(self, request, queryset):
+        updated = queryset.update(status='Active')
+        self.message_user(request, f"{updated} person(s) set to Active Wanted Notice.")

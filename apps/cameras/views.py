@@ -43,7 +43,9 @@ def add_camera(request):
         enable_human_detection=request.POST.get('enable_human_detection') == 'on',
         enable_vehicle_detection=request.POST.get('enable_vehicle_detection') == 'on',
         enable_anpr=request.POST.get('enable_anpr') == 'on',
+        enable_frs=request.POST.get('enable_frs') == 'on',
         enable_intrusion_detection=request.POST.get('enable_intrusion_detection') == 'on',
+        enable_behavioral_analytics=request.POST.get('enable_behavioral_analytics') == 'on',
         enable_night_detection=request.POST.get('enable_night_detection') == 'on',
     )
     messages.success(request, f"Camera {camera_id} integrated successfully.")
@@ -61,8 +63,12 @@ def toggle_ai_module(request, pk):
         camera.enable_vehicle_detection = not camera.enable_vehicle_detection
     elif module == 'anpr':
         camera.enable_anpr = not camera.enable_anpr
+    elif module == 'frs':
+        camera.enable_frs = not camera.enable_frs
     elif module == 'intrusion':
         camera.enable_intrusion_detection = not camera.enable_intrusion_detection
+    elif module == 'behavioral':
+        camera.enable_behavioral_analytics = not camera.enable_behavioral_analytics
     elif module == 'night':
         camera.enable_night_detection = not camera.enable_night_detection
     elif module == 'ai_master':

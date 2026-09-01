@@ -68,8 +68,12 @@ class SecurityEventAdmin(ModelAdmin):
         label={
             'INTRUSION': 'danger',
             'NIGHT_MOVEMENT': 'warning',
+            'FRS_MATCH': 'danger',
             'ANPR_MATCH': 'danger',
             'LOITERING': 'warning',
+            'CRAWLING_CONCEALMENT': 'danger',
+            'SUSPICIOUS_PACKAGE_DROP': 'warning',
+            'CROWD_SURGE': 'warning',
             'UNAUTHORIZED_VEHICLE': 'warning',
             'PERIMETER_CROSSING': 'danger',
         }

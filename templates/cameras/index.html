@@ -69,7 +69,7 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <div class="d-flex flex-wrap gap-1.5 align-items-center">
                                     <span class="badge {% if cam.enable_human_detection %}bg-info text-dark{% else %}bg-dark text-muted border border-secondary{% endif %}" title="Human Detection">
                                         <i class="bi bi-person"></i> Human
                                     </span>
@@ -79,8 +79,14 @@
                                     <span class="badge {% if cam.enable_anpr %}bg-warning text-dark{% else %}bg-dark text-muted border border-secondary{% endif %}" title="ANPR / OCR">
                                         <i class="bi bi-card-text"></i> ANPR
                                     </span>
+                                    <span class="badge {% if cam.enable_frs %}bg-cyan text-dark{% else %}bg-dark text-muted border border-secondary{% endif %}" style="background-color: {% if cam.enable_frs %}#00f2fe{% else %}transparent{% endif %};" title="Facial Recognition (FRS)">
+                                        <i class="bi bi-person-bounding-box"></i> FRS
+                                    </span>
                                     <span class="badge {% if cam.enable_intrusion_detection %}bg-danger text-white{% else %}bg-dark text-muted border border-secondary{% endif %}" title="Virtual Fence Intrusion">
                                         <i class="bi bi-shield-slash"></i> Intrusion
+                                    </span>
+                                    <span class="badge {% if cam.enable_behavioral_analytics %}bg-success text-white{% else %}bg-dark text-muted border border-secondary{% endif %}" title="Behavioral Analytics">
+                                        <i class="bi bi-activity"></i> Behavior
                                     </span>
                                     <span class="badge {% if cam.enable_night_detection %}bg-purple text-white{% else %}bg-dark text-muted border border-secondary{% endif %}" style="background-color: {% if cam.enable_night_detection %}#8b5cf6{% else %}transparent{% endif %};" title="Night Vision">
                                         <i class="bi bi-moon-stars"></i> Night
@@ -159,8 +165,16 @@
                                     <label class="form-check-label text-white small" for="modAnpr">ANPR / OCR</label>
                                 </div>
                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="enable_frs" id="modFrs" checked>
+                                    <label class="form-check-label text-white small" for="modFrs">Facial Recognition (FRS)</label>
+                                </div>
+                                <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="enable_intrusion_detection" id="modIntrusion" checked>
                                     <label class="form-check-label text-white small" for="modIntrusion">Intrusion Virtual Fence</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="enable_behavioral_analytics" id="modBehavioral" checked>
+                                    <label class="form-check-label text-white small" for="modBehavioral">Behavioral / Activity</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="enable_night_detection" id="modNight" checked>

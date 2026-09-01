@@ -17,7 +17,7 @@ def dashboard_callback(request, context):
         from apps.alerts.models import SecurityAlert
         from apps.events.models import SecurityEvent
         from apps.anpr.models import ANPRDetection
-        from apps.watchlist.models import WatchlistVehicle
+        from apps.watchlist.models import WatchlistVehicle, WatchlistPerson
         from apps.settings_app.models import SystemConfiguration
 
         # Cameras Telemetry
@@ -32,16 +32,21 @@ def dashboard_callback(request, context):
         acknowledged_alerts = SecurityAlert.objects.filter(status='ACKNOWLEDGED').count()
         resolved_alerts = SecurityAlert.objects.filter(status='RESOLVED').count()
 
-        # ANPR & Watchlist Telemetry
+        # ANPR & Biometric Watchlist Telemetry
         total_detections = ANPRDetection.objects.count()
         watchlist_matches = ANPRDetection.objects.filter(is_watchlist_match=True).count()
-        active_watchlist = WatchlistVehicle.objects.filter(status='Active').count()
-        critical_watchlist = WatchlistVehicle.objects.filter(risk_level='CRITICAL', status='Active').count()
+        active_watchlist_vehicles = WatchlistVehicle.objects.filter(status='Active').count()
+        critical_watchlist_vehicles = WatchlistVehicle.objects.filter(risk_level='CRITICAL', status='Active').count()
+        
+        # Biometric FRS Suspects
+        active_watchlist_persons = WatchlistPerson.objects.filter(status='Active').count()
+        critical_watchlist_persons = WatchlistPerson.objects.filter(threat_level='CRITICAL', status='Active').count()
 
         # Events Telemetry (24h)
         last_24h = timezone.now() - timedelta(hours=24)
         events_24h = SecurityEvent.objects.filter(timestamp__gte=last_24h).count()
         intrusions_24h = SecurityEvent.objects.filter(timestamp__gte=last_24h, event_type='INTRUSION').count()
+        frs_matches_24h = SecurityEvent.objects.filter(timestamp__gte=last_24h, event_type='FRS_MATCH').count()
 
         # Recent priority lists for dashboard widgets
         recent_critical_alerts = SecurityAlert.objects.filter(
@@ -68,10 +73,13 @@ def dashboard_callback(request, context):
             'resolved_alerts': resolved_alerts,
             'total_detections': total_detections,
             'watchlist_matches': watchlist_matches,
-            'active_watchlist': active_watchlist,
-            'critical_watchlist': critical_watchlist,
+            'active_watchlist': active_watchlist_vehicles,
+            'critical_watchlist': critical_watchlist_vehicles,
+            'active_persons': active_watchlist_persons,
+            'critical_persons': critical_watchlist_persons,
             'events_24h': events_24h,
             'intrusions_24h': intrusions_24h,
+            'frs_matches_24h': frs_matches_24h,
             'camera_readiness': camera_readiness,
             'ai_coverage': ai_coverage,
             'recent_critical_alerts': recent_critical_alerts,

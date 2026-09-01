@@ -209,19 +209,24 @@ UNFOLD = {
                 ],
             },
             {
-                'title': _('Vehicle Intel & ANPR'),
+                'title': _('Biometric & Vehicle Watchlists'),
                 'separator': True,
                 'collapsible': True,
                 'items': [
                     {
-                        'title': _('ANPR Detections'),
-                        'icon': 'directions_car',
-                        'link': reverse_lazy('admin:anpr_anprdetection_changelist'),
+                        'title': _('Watchlist Persons (FRS)'),
+                        'icon': 'fingerprint',
+                        'link': reverse_lazy('admin:watchlist_watchlistperson_changelist'),
                     },
                     {
-                        'title': _('Watchlist Vehicles'),
+                        'title': _('Watchlist Vehicles (ANPR)'),
                         'icon': 'radar',
                         'link': reverse_lazy('admin:watchlist_watchlistvehicle_changelist'),
+                    },
+                    {
+                        'title': _('Live ANPR Scans'),
+                        'icon': 'directions_car',
+                        'link': reverse_lazy('admin:anpr_anprdetection_changelist'),
                     },
                 ],
             },

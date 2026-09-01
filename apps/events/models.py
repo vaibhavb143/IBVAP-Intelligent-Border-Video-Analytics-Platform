@@ -5,8 +5,12 @@ class SecurityEvent(models.Model):
     EVENT_TYPES = [
         ('INTRUSION', 'Restricted Zone Intrusion'),
         ('NIGHT_MOVEMENT', 'Night Movement Detected'),
+        ('FRS_MATCH', 'Biometric FRS Watchlist Match'),
         ('ANPR_MATCH', 'Watchlist ANPR Match'),
-        ('LOITERING', 'Perimeter Loitering'),
+        ('LOITERING', 'Perimeter Loitering & Reconnaissance'),
+        ('CRAWLING_CONCEALMENT', 'Prone / Low-Crawl Infiltration Movement'),
+        ('SUSPICIOUS_PACKAGE_DROP', 'Unattended Contraband / Object Drop'),
+        ('CROWD_SURGE', 'Abnormal Crowd Clustering / Surge'),
         ('UNAUTHORIZED_VEHICLE', 'Unauthorized Vehicle Entry'),
         ('PERIMETER_CROSSING', 'Virtual Fence Crossing'),
     ]
@@ -14,6 +18,7 @@ class SecurityEvent(models.Model):
     OBJECT_TYPES = [
         ('Person', 'Person / Pedestrian'),
         ('Vehicle', 'Motor Vehicle'),
+        ('Package', 'Unattended Baggage / Contraband'),
         ('Animal', 'Animal / Wildlife'),
         ('Unknown', 'Unidentified Object'),
     ]

@@ -43,7 +43,9 @@ class Camera(models.Model):
     enable_human_detection = models.BooleanField(default=True, verbose_name="Human Detection")
     enable_vehicle_detection = models.BooleanField(default=True, verbose_name="Vehicle Classification")
     enable_anpr = models.BooleanField(default=False, verbose_name="ANPR / OCR")
+    enable_frs = models.BooleanField(default=True, verbose_name="Facial Recognition (FRS)")
     enable_intrusion_detection = models.BooleanField(default=True, verbose_name="Virtual Fence Intrusion")
+    enable_behavioral_analytics = models.BooleanField(default=True, verbose_name="Behavioral / Activity Analytics")
     enable_night_detection = models.BooleanField(default=True, verbose_name="Night-Time Vision / Movement")
 
     # Map Coordinates
