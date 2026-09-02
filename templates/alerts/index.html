@@ -14,7 +14,13 @@
             <p class="page-subtitle">Real-time threat notification log, incident verification, and officer acknowledgment queue.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-danger p-2 font-monospace">{{ counts.active }} UNRESOLVED THREATS</span>
+            <span class="badge bg-danger p-2 font-monospace">{{ counts.active }} ACTIVE THREATS</span>
+            <form method="post" action="{% url 'alerts:clear_all' %}" onsubmit="return confirm('Purge and clear all alerts from the database?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger font-monospace">
+                    <i class="bi bi-trash3 me-1"></i> Clear All Alerts
+                </button>
+            </form>
         </div>
     </div>
 

@@ -67,3 +67,27 @@ def resolve_alert(request, pk):
         return JsonResponse({'status': 'success', 'new_status': 'RESOLVED'})
     messages.success(request, f"Alert {alert.alert_id} resolved and cleared.")
     return redirect('alerts:list')
+
+@login_required
+@require_POST
+def delete_alert(request, pk):
+    alert = get_object_or_404(SecurityAlert, pk=pk)
+    alert_id = alert.alert_id
+    alert.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success', 'deleted_id': alert_id})
+    messages.success(request, f"Alert {alert_id} deleted.")
+    return redirect('alerts:list')
+
+@login_required
+@require_POST
+def clear_all_alerts(request):
+    """
+    Purges all active/resolved alerts and resets camera threat scores.
+    """
+    deleted_count = SecurityAlert.objects.all().delete()[0]
+    Camera.objects.all().update(threat_level='NORMAL', people_count=0, vehicle_count=0)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success', 'deleted_count': deleted_count})
+    messages.success(request, f"All {deleted_count} alerts cleared successfully.")
+    return redirect('alerts:list')

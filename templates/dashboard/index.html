@@ -15,6 +15,9 @@
             <p class="page-subtitle">Real-time border surveillance and AI threat monitoring.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn-soc-primary" data-bs-toggle="modal" data-bs-target="#aiAnalyzerModal">
+                <i class="bi bi-file-earmark-play-fill"></i> Upload & Run AI Video Analysis
+            </button>
             <span class="badge bg-danger p-2 font-monospace">THREAT LEVEL: CRITICAL (92/100)</span>
             <a href="{% url 'cameras:list' %}" class="btn-soc-secondary">
                 <i class="bi bi-gear"></i> Camera Feeds
@@ -99,7 +102,7 @@
                 <div class="card-header-soc">
                     <div class="card-title-soc">
                         <i class="bi bi-grid-fill text-cyan"></i>
-                        Live Tactical Surveillance Feeds (2x2 Grid)
+                        Live Tactical Surveillance Feeds (6-Camera Sector Grid)
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-dark border border-secondary text-muted font-monospace small">SYNC INTERVAL: {{ config.auto_refresh_rate }}s</span>
@@ -136,15 +139,8 @@
                                 <div class="hud-reticle-tr"></div>
                                 <div class="hud-reticle-bl"></div>
                                 <div class="hud-reticle-br"></div>
-
-                                {% if cam.feed_type == 'LIVE' %}
-                                    <!-- Webcam element for BOP-01 -->
-                                    <video id="video-{{ cam.camera_id }}" autoplay playsinline muted style="display: none;"></video>
-                                    <canvas id="canvas-{{ cam.camera_id }}" style="display: block;"></canvas>
-                                {% else %}
-                                    <!-- Tactical Canvas for simulated cameras -->
-                                    <canvas id="canvas-{{ cam.camera_id }}"></canvas>
-                                {% endif %}
+                                <video id="video-{{ cam.camera_id }}" autoplay playsinline muted loop style="display: none;"></video>
+                                <canvas id="canvas-{{ cam.camera_id }}" style="display: block;"></canvas>
 
                                 <!-- HUD Overlay -->
                                 <div class="hud-overlay">
@@ -179,7 +175,12 @@
                                         <i class="bi bi-camera-video"></i> Toggle Webcam
                                     </button>
                                 {% else %}
-                                    <span class="font-monospace text-xs text-muted">SYNTHETIC FEED</span>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input type="file" id="file-{{ cam.camera_id }}" accept="video/*" style="display: none;" onchange="loadCCTVVideoFile('{{ cam.camera_id }}', this)">
+                                        <button type="button" class="btn btn-sm btn-soc-secondary py-0 px-2 font-monospace" style="font-size: 0.72rem;" onclick="document.getElementById('file-{{ cam.camera_id }}').click()" title="Upload surveillance video to run real-time AI inference on this channel">
+                                            <i class="bi bi-file-earmark-play"></i> Ingest CCTV Video
+                                        </button>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -235,9 +236,14 @@
                         <i class="bi bi-broadcast text-danger"></i>
                         Live Security Alerts
                     </div>
-                    <a href="{% url 'alerts:list' %}" class="btn-soc-secondary py-1 px-2 text-xs">
-                        View All ({{ kpis.active_alerts }})
-                    </a>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 font-monospace" style="font-size: 0.72rem;" onclick="clearAllSecurityAlerts()" title="Clear all active security alerts">
+                            <i class="bi bi-trash3"></i> Clear
+                        </button>
+                        <a href="{% url 'alerts:list' %}" class="btn-soc-secondary py-1 px-2 text-xs">
+                            View All ({{ kpis.active_alerts }})
+                        </a>
+                    </div>
                 </div>
 
                 <div class="alert-stream-list">
@@ -325,8 +331,96 @@
         </div>
     </div>
 </div>
+
+<!-- AI Video & Image Upload Inspector Modal -->
+<div class="modal fade" id="aiAnalyzerModal" tabindex="-1" aria-labelledby="aiAnalyzerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content soc-card border-cyan" style="background: #0b111e; border: 1px solid rgba(0, 242, 254, 0.35);">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white d-flex align-items-center gap-2" id="aiAnalyzerModalLabel">
+                    <i class="bi bi-cpu-fill text-cyan"></i>
+                    AI Edge Video & Image Analytics Inspector
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="aiUploadForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <!-- Instruction Banner -->
+                    <div class="alert alert-dark border-secondary d-flex align-items-center gap-3 mb-3 small" style="background: rgba(6, 11, 22, 0.85);">
+                        <i class="bi bi-info-circle-fill text-cyan fs-4"></i>
+                        <div>
+                            <strong class="text-white">Live Computer Vision Ingestion:</strong> Upload any border surveillance MP4 video, CCTV frame, or image file. The AI engine will analyze targets (Persons, Vehicles, Number Plates, FRS Suspects) and record live alerts in the database.
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">ASSIGNED CAMERA NODE</label>
+                            <select name="camera_id" id="analyzerCameraId" class="form-select soc-input">
+                                <option value="BOP-01">BOP-01 (Forward Outpost Alpha)</option>
+                                <option value="BOP-02">BOP-02 (Eastern Lowlands Patrol)</option>
+                                <option value="BOP-03">BOP-03 (Restricted Outpost Thermal)</option>
+                                <option value="GATE-01">GATE-01 (Main Entry Checkpost)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold font-monospace">AI ANALYTICS MODE</label>
+                            <select name="detection_type" id="analyzerDetectionType" class="form-select soc-input">
+                                <option value="auto">Auto-Detect (Human / Vehicle / FRS / ANPR)</option>
+                                <option value="vehicle">ANPR Vehicle & Number Plate Focus</option>
+                                <option value="person">Human Intrusion & Biometric FRS Focus</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold font-monospace">SELECT VIDEO OR IMAGE ASSET</label>
+                            <input type="file" name="media_file" id="analyzerFileInput" class="form-control soc-input" accept="video/*,image/*" required>
+                            <span class="text-xs text-muted font-monospace mt-1 d-block">Supported formats: MP4, AVI, MOV, JPG, PNG, WEBP</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress / Scanning Indicator -->
+                    <div id="analyzerProgress" class="d-none p-4 text-center">
+                        <div class="spinner-border text-cyan mb-2" role="status"></div>
+                        <div class="text-white fw-bold font-monospace small">AI NEURAL NETWORK INGESTING & SCANNING FRAMES...</div>
+                        <div class="text-muted text-xs font-monospace">Evaluating YOLO bounding boxes, FRS embeddings & OCR tripwires</div>
+                    </div>
+
+                    <!-- Result Container -->
+                    <div id="analyzerResult" class="d-none mt-3 p-3 rounded bg-dark border border-secondary">
+                        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-secondary">
+                            <span class="badge bg-success font-monospace"><i class="bi bi-check-circle-fill me-1"></i> ANALYSIS COMPLETE</span>
+                            <span id="resTimestamp" class="text-xs text-muted font-monospace"></span>
+                        </div>
+                        <div id="resSummary" class="text-white small fw-bold mb-3"></div>
+                        
+                        <div class="p-2 rounded bg-black bg-opacity-50 border border-secondary mb-3">
+                            <div class="text-cyan text-xs font-monospace fw-bold mb-1">AI DETECTION RESULTS:</div>
+                            <div id="resDetectionsList" class="small text-light"></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 justify-content-end">
+                            <a href="{% url 'alerts:list' %}" class="btn btn-soc-primary py-1 px-3 text-xs" target="_blank">
+                                <i class="bi bi-exclamation-octagon-fill"></i> View in Security Alerts
+                            </a>
+                            <a href="{% url 'events:list' %}" class="btn btn-soc-secondary py-1 px-3 text-xs" target="_blank">
+                                <i class="bi bi-clock-history"></i> View in Events Log
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-soc-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="btnRunAnalysis" class="btn btn-soc-primary">
+                        <i class="bi bi-play-circle-fill"></i> Ingest & Run AI Detection
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}?v={% now 'U' %}"></script>
 {% endblock %}

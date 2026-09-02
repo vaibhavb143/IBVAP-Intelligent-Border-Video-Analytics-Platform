@@ -83,12 +83,13 @@ Border security forces deploy standard CCTV cameras across Border Out Posts (BOP
 
 ## 🛠 Technology Stack
 
-- **Backend Framework**: Python 3.11, Django 5.x, Django REST Framework
-- **Super Admin Engine**: `django-unfold>=0.91.0` (Tailwind-styled Command Center with live telemetry callback)
-- **Frontend / UI**: Django Templates, Bootstrap 5, Vanilla CSS Glassmorphism, Material Symbols, Bootstrap Icons
-- **Data Visualization**: Chart.js Interactive Dashboards
-- **Database**: SQLite3 (Local Development) / PostgreSQL via `dj-database-url` (Production)
-- **Static Assets & Deployment**: WhiteNoise Compression, Gunicorn WSGI, Render-ready configuration
+- **Frontend**: HTML5, Vanilla CSS (Custom Dark Glassmorphism), JavaScript (ES6+), Bootstrap 5, Chart.js, Bootstrap Icons, Material Symbols
+- **Backend**: Python 3.11, Django 5.x, Django REST Framework (DRF)
+- **Super Admin**: Django Unfold (v0.91+) with Tailwind-styled Command Telemetry HUD & Bulk Actions
+- **Database**: SQLite3 (Local / Edge Deployments) & PostgreSQL (Production Cloud via `dj-database-url`)
+- **Hosting & Deployment**: Render Cloud Platform, Gunicorn 21.x WSGI Server, WhiteNoise Asset Compression
+- **AI & Video Analytics**: Facial Recognition System (FRS), ANPR / OCR, Virtual Tripwire Intrusion, Behavioral Analytics (Low-Crawl, Package Drops, Loitering), Night Thermal Vision
+- **Data Visualization & Mapping**: Chart.js 6-Graph Intelligence Suite, Interactive Geospatial Sector Map
 
 ---
 

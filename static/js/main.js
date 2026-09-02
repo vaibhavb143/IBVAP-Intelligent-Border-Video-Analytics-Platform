@@ -27,7 +27,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Auto dismiss toasts after 4 seconds
+    // 3. Theme Toggle (Light / Dark Mode)
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+
+    function syncThemeUI(theme) {
+        if (themeIcon && themeLabel) {
+            if (theme === 'light') {
+                themeIcon.className = 'bi bi-sun-fill text-warning';
+                themeLabel.textContent = 'LIGHT';
+                if (themeBtn) themeBtn.className = 'btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 text-dark border-primary bg-light px-2.5 py-1 rounded-pill shadow-sm';
+            } else {
+                themeIcon.className = 'bi bi-moon-stars-fill text-warning';
+                themeLabel.textContent = 'DARK';
+                if (themeBtn) themeBtn.className = 'btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 text-white border-secondary bg-dark bg-opacity-50 px-2.5 py-1 rounded-pill';
+            }
+        }
+    }
+
+    const currentTheme = localStorage.getItem('ibvap-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    syncThemeUI(currentTheme);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('ibvap-theme', nextTheme);
+            syncThemeUI(nextTheme);
+        });
+    }
+
+    // 4. Auto dismiss toasts after 4 seconds
     const alerts = document.querySelectorAll('.alert-auto-dismiss');
     alerts.forEach(alert => {
         setTimeout(() => {

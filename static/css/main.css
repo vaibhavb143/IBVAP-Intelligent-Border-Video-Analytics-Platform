@@ -45,6 +45,144 @@
   --sidebar-collapsed-width: 72px;
 }
 
+/* ==========================================================================
+   Light Mode Theme Overrides
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  --bg-glass-card: rgba(255, 255, 255, 0.98);
+  
+  --border-subtle: #e2e8f0;
+  --border-cyan: rgba(2, 132, 199, 0.35);
+  --border-focus: #0284c7;
+  
+  --color-cyan: #0284c7;
+  --color-blue: #0369a1;
+  --color-primary: #0284c7;
+  --color-primary-glow: rgba(2, 132, 199, 0.2);
+
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+}
+
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.03) 0%, transparent 40%) !important;
+}
+
+[data-theme="light"] .soc-card,
+[data-theme="light"] .card-header-soc,
+[data-theme="light"] .camera-feed-card,
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .modal-content {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .soc-brand-title,
+[data-theme="light"] .card-title-soc,
+[data-theme="light"] .page-title,
+[data-theme="light"] .modal-title,
+[data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3,
+[data-theme="light"] h4, [data-theme="light"] h5, [data-theme="light"] h6 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .page-subtitle,
+[data-theme="light"] .text-muted {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .soc-table th {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .soc-table td {
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .soc-sidebar {
+  background: #ffffff !important;
+  border-right-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .sidebar-link {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .sidebar-link:hover,
+[data-theme="light"] .sidebar-link.active {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .kpi-value {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .kpi-label {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .soc-input,
+[data-theme="light"] .form-control,
+[data-theme="light"] .form-select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .btn-soc-secondary {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .btn-soc-secondary:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .alert-item-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .dropdown-menu {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .dropdown-item {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .dropdown-item:hover {
+  background: #f1f5f9 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .badge.bg-dark {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
 /* Base resets & typography */
 * {
   box-sizing: border-box;
@@ -499,11 +637,11 @@ body {
 }
 
 /* ==========================================================================
-   2x2 Camera Grid & Video Viewport
+   Camera Grid & Video Viewport
    ========================================================================== */
 .camera-grid-2x2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
   gap: 1rem;
 }
 

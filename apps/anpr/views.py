@@ -13,7 +13,7 @@ def anpr_list(request):
     
     total_plates = detections.count()
     watchlist_matches_count = detections.filter(is_watchlist_match=True).count()
-    vehicles_today = detections.count() + 18 # representative count
+    vehicles_today = total_plates
 
     return render(request, 'anpr/index.html', {
         'detections': detections[:50],
